@@ -19,9 +19,7 @@ public sealed class CoverRepository(ClaimsMongoDbContext context) : ICoverReposi
             .Where(c => c.Id == id)
             .SingleOrDefaultAsync(cancellationToken);
 
-        return entity is null
-            ? null
-            : entity.ToDomain();
+        return entity?.ToDomain();
     }
 
     public async Task AddAsync(Cover cover, CancellationToken cancellationToken)

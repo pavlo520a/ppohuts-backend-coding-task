@@ -19,9 +19,7 @@ public sealed class ClaimRepository(ClaimsMongoDbContext context) : IClaimReposi
             .Where(c => c.Id == id)
             .SingleOrDefaultAsync(cancellationToken);
 
-        return entity is null
-            ? null
-            : entity.ToDomain();
+        return entity?.ToDomain();
     }
 
     public async Task AddAsync(Claim claim, CancellationToken cancellationToken)

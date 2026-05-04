@@ -9,8 +9,8 @@ public static class CoverMapping
         new()
         {
             Id = document.Id,
-            StartDate = document.StartDate,
-            EndDate = document.EndDate,
+            StartDate = document.StartDate.ToDateTime(TimeOnly.MinValue),
+            EndDate = document.EndDate.ToDateTime(TimeOnly.MinValue),
             Type = document.Type,
             Premium = document.Premium
         };
@@ -19,8 +19,8 @@ public static class CoverMapping
         new()
         {
             Id = cover.Id,
-            StartDate = cover.StartDate,
-            EndDate = cover.EndDate,
+            StartDate = DateOnly.FromDateTime(cover.StartDate),
+            EndDate = DateOnly.FromDateTime(cover.EndDate),
             Type = cover.Type,
             Premium = cover.Premium
         };
