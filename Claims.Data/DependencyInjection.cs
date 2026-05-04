@@ -3,7 +3,6 @@ using Claims.Data.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Driver;
 
 namespace Claims.Data;
@@ -12,8 +11,6 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddData(this IServiceCollection services, IConfiguration configuration)
     {
-        RegisterMongoConventions();
-
         var mongoConnectionString = configuration["MongoDb:ConnectionString"]
             ?? throw new InvalidOperationException(
                 "MongoDb:ConnectionString is not configured. Set MongoDb:ConnectionString in appsettings, environment variables, or user secrets.");
@@ -32,15 +29,5 @@ public static class DependencyInjection
         services.AddScoped<ICoverRepository, CoverRepository>();
 
         return services;
-    }
-
-    private static void RegisterMongoConventions()
-    {
-        var conventionPack = new ConventionPack
-        {
-            new CamelCaseElementNameConvention()
-        };
-
-        ConventionRegistry.Register("Claims.Data.CamelCase", conventionPack, _ => true);
     }
 }
