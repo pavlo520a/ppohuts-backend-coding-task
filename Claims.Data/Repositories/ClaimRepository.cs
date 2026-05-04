@@ -1,5 +1,5 @@
 using Claims.Data.Abstractions.Repositories;
-using Claims.Data.Documents;
+using Claims.Data.Mapping;
 using Claims.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,7 +10,7 @@ public sealed class ClaimRepository(ClaimsMongoDbContext context) : IClaimReposi
     public async Task<IReadOnlyList<Claim>> GetAllAsync(CancellationToken cancellationToken)
     {
         var items = await context.Claims.ToListAsync(cancellationToken);
-        return [.. items.Select(ToDomain)];
+        return [.. items.Select(item => item.ToDomain())];
     }
 
     public async Task<Claim?> GetByIdAsync(string id, CancellationToken cancellationToken)
@@ -21,12 +21,12 @@ public sealed class ClaimRepository(ClaimsMongoDbContext context) : IClaimReposi
 
         return entity is null
             ? null
-            : ToDomain(entity);
+            : entity.ToDomain();
     }
 
     public async Task AddAsync(Claim claim, CancellationToken cancellationToken)
     {
-        context.Claims.Add(ToDocument(claim));
+        context.Claims.Add(claim.ToDocument());
         await context.SaveChangesAsync(cancellationToken);
     }
 
@@ -42,26 +42,4 @@ public sealed class ClaimRepository(ClaimsMongoDbContext context) : IClaimReposi
             await context.SaveChangesAsync(cancellationToken);
         }
     }
-
-    private static Claim ToDomain(ClaimDocument d) =>
-        new()
-        {
-            Id = d.Id,
-            CoverId = d.CoverId,
-            Created = d.Created,
-            Name = d.Name,
-            Type = d.Type,
-            DamageCost = d.DamageCost
-        };
-
-    private static ClaimDocument ToDocument(Claim c) =>
-        new()
-        {
-            Id = c.Id,
-            CoverId = c.CoverId,
-            Created = c.Created,
-            Name = c.Name,
-            Type = c.Type,
-            DamageCost = c.DamageCost
-        };
 }

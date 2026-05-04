@@ -1,5 +1,5 @@
 using Claims.Data.Abstractions.Repositories;
-using Claims.Data.Documents;
+using Claims.Data.Mapping;
 using Claims.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,7 +10,7 @@ public sealed class CoverRepository(ClaimsMongoDbContext context) : ICoverReposi
     public async Task<IReadOnlyList<Cover>> GetAllAsync(CancellationToken cancellationToken)
     {
         var items = await context.Covers.ToListAsync(cancellationToken);
-        return [.. items.Select(ToDomain)];
+        return [.. items.Select(item => item.ToDomain())];
     }
 
     public async Task<Cover?> GetByIdAsync(string id, CancellationToken cancellationToken)
@@ -21,12 +21,12 @@ public sealed class CoverRepository(ClaimsMongoDbContext context) : ICoverReposi
 
         return entity is null
             ? null
-            : ToDomain(entity);
+            : entity.ToDomain();
     }
 
     public async Task AddAsync(Cover cover, CancellationToken cancellationToken)
     {
-        context.Covers.Add(ToDocument(cover));
+        context.Covers.Add(cover.ToDocument());
         await context.SaveChangesAsync(cancellationToken);
     }
 
@@ -42,24 +42,4 @@ public sealed class CoverRepository(ClaimsMongoDbContext context) : ICoverReposi
             await context.SaveChangesAsync(cancellationToken);
         }
     }
-
-    private static Cover ToDomain(CoverDocument d) =>
-        new()
-        {
-            Id = d.Id,
-            StartDate = d.StartDate,
-            EndDate = d.EndDate,
-            Type = d.Type,
-            Premium = d.Premium
-        };
-
-    private static CoverDocument ToDocument(Cover c) =>
-        new()
-        {
-            Id = c.Id,
-            StartDate = c.StartDate,
-            EndDate = c.EndDate,
-            Type = c.Type,
-            Premium = c.Premium
-        };
 }

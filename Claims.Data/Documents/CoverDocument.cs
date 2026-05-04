@@ -6,7 +6,7 @@ namespace Claims.Data.Documents;
 public class CoverDocument
 {
     [BsonId]
-    public string Id { get; set; } = string.Empty;
+    public required string Id { get; set; }
 
     [BsonElement("startDate")]
     public DateTime StartDate { get; set; }
