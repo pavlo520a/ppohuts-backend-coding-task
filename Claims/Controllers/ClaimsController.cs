@@ -76,7 +76,7 @@ public class ClaimsController : ControllerBase
         var response = claim.ToResponse();
 
         return CreatedAtAction(
-            nameof(GetByIdAsync),
+            "GetById",
             new
             {
                 response.Id

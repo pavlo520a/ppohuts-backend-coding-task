@@ -76,7 +76,7 @@ public class CoversController : ControllerBase
         var response = cover.ToResponse();
 
         return CreatedAtAction(
-            nameof(GetByIdAsync),
+            "GetById",
             new
             {
                 response.Id
