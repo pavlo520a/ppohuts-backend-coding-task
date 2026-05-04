@@ -7,7 +7,15 @@ namespace Claims.Mapping;
 public static class ClaimApiMapping
 {
     public static CreateClaimCommand ToCommand(this CreateClaimRequest request, string httpMethod) =>
-        new(request.CoverId, request.Created, request.Name, request.Type, request.DamageCost, httpMethod);
+        new()
+        {
+            CoverId = request.CoverId,
+            Created = request.Created,
+            Name = request.Name,
+            Type = request.Type,
+            DamageCost = request.DamageCost,
+            HttpMethod = httpMethod
+        };
 
     public static ClaimResponse ToResponse(this Claim claim) =>
         new()
@@ -19,4 +27,7 @@ public static class ClaimApiMapping
             Type = claim.Type,
             DamageCost = claim.DamageCost
         };
+
+    public static IReadOnlyList<ClaimResponse> ToResponse(this IEnumerable<Claim> claims) =>
+        [.. claims.Select(c => c.ToResponse())];
 }

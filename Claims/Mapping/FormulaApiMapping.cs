@@ -5,6 +5,12 @@ namespace Claims.Mapping;
 
 public static class FormulaApiMapping
 {
-    public static ComputePremiumCommand ToCommand(this ComputePremiumRequest request) =>
-        new(request.StartDate, request.EndDate, request.CoverType);
+    public static ComputePremiumCommand ToCommand(this ComputePremiumRequest request, string httpMethod) =>
+        new()
+        {
+            StartDate = request.StartDate,
+            EndDate = request.EndDate,
+            CoverType = request.CoverType,
+            HttpMethod = httpMethod
+        };
 }

@@ -4,13 +4,13 @@ namespace Claims.Domain.Models;
 
 public class Cover
 {
-    public string Id { get; set; } = string.Empty;
+    public required string Id { get; set; }
 
-    public DateTime StartDate { get; set; }
+    public required DateTime StartDate { get; set; }
 
-    public DateTime EndDate { get; set; }
+    public required DateTime EndDate { get; set; }
 
-    public CoverType Type { get; set; }
+    public required CoverType Type { get; set; }
 
-    public decimal Premium { get; set; }
+    public required decimal Premium { get; set; }
 }

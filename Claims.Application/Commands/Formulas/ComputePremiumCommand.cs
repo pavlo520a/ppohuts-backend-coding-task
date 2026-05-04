@@ -2,7 +2,13 @@ using Claims.Domain.Enums;
 
 namespace Claims.Application.Commands.Formulas;
 
-public record ComputePremiumCommand(
-    DateTime StartDate,
-    DateTime EndDate,
-    CoverType CoverType);
+public record ComputePremiumCommand
+{
+    public required DateTime StartDate { get; init; }
+
+    public required DateTime EndDate { get; init; }
+
+    public required CoverType CoverType { get; init; }
+
+    public required string HttpMethod { get; init; }
+}

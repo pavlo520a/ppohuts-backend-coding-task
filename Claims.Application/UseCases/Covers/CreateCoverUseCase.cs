@@ -15,7 +15,13 @@ public sealed class CreateCoverUseCase(
 {
     public async Task<Cover> ExecuteAsync(CreateCoverCommand command, CancellationToken cancellationToken)
     {
-        var formulaArgs = new CoverPremiumFormulaArgs(command.StartDate, command.EndDate, command.Type);
+        var formulaArgs = new CoverPremiumFormulaArgs
+        {
+            StartDate = command.StartDate,
+            EndDate = command.EndDate,
+            CoverType = command.Type
+        };
+
         var cover = new Cover
         {
             Id = Guid.NewGuid().ToString(),

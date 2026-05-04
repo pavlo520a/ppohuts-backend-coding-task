@@ -22,18 +22,16 @@ public class ClaimsController : ControllerBase
     /// Returns all claims.
     /// </summary>
     [HttpGet]
-    [ProducesResponseType(typeof(IEnumerable<ClaimResponse>), StatusCodes.Status200OK)]
-    [SwaggerResponse(StatusCodes.Status200OK, "Returns all claims.", typeof(IEnumerable<ClaimResponse>))]
-    public async Task<ActionResult<IEnumerable<ClaimResponse>>> GetAllAsync(
+    [ProducesResponseType(typeof(IReadOnlyList<ClaimResponse>), StatusCodes.Status200OK)]
+    [SwaggerResponse(StatusCodes.Status200OK, "Returns all claims.", typeof(IReadOnlyList<ClaimResponse>))]
+    public async Task<ActionResult<IReadOnlyList<ClaimResponse>>> GetAllAsync(
         [FromServices] IUseCase<GetClaimsCommand, IReadOnlyList<Claim>> useCase,
         CancellationToken cancellationToken)
     {
-        var claims = await useCase.ExecuteAsync(new GetClaimsCommand(), cancellationToken);
-        var mapped = claims
-            .Select(c => c.ToResponse())
-            .ToList();
+        var command = new GetClaimsCommand();
+        var claims = await useCase.ExecuteAsync(command, cancellationToken);
 
-        return Ok(mapped);
+        return Ok(claims.ToResponse());
     }
 
     /// <summary>
@@ -41,6 +39,7 @@ public class ClaimsController : ControllerBase
     /// </summary>
     /// <param name="id">Claim identifier.</param>
     [HttpGet("{id}")]
+    [ActionName("GetByIdAsync")]
     [ProducesResponseType(typeof(ClaimResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [SwaggerResponse(StatusCodes.Status200OK, "Returns the claim with the given id.", typeof(ClaimResponse))]
@@ -50,7 +49,12 @@ public class ClaimsController : ControllerBase
         [FromServices] IUseCase<GetClaimByIdCommand, Claim?> useCase,
         CancellationToken cancellationToken)
     {
-        var claim = await useCase.ExecuteAsync(new GetClaimByIdCommand(id), cancellationToken);
+        var command = new GetClaimByIdCommand
+        {
+            Id = id
+        };
+
+        var claim = await useCase.ExecuteAsync(command, cancellationToken);
 
         if (claim is null)
         {
@@ -72,15 +76,15 @@ public class ClaimsController : ControllerBase
         CancellationToken cancellationToken)
     {
         var httpMethod = HttpContext.Request.Method.ToUpperInvariant();
-        var claim = await useCase.ExecuteAsync(request.ToCommand(httpMethod), cancellationToken);
+        var claim = await useCase.ExecuteAsync(
+            request.ToCommand(httpMethod),
+            cancellationToken);
+
         var response = claim.ToResponse();
 
         return CreatedAtAction(
-            "GetById",
-            new
-            {
-                response.Id
-            },
+            nameof(GetByIdAsync),
+            new { id = response.Id },
             response);
     }
 
@@ -97,7 +101,13 @@ public class ClaimsController : ControllerBase
         CancellationToken cancellationToken)
     {
         var httpMethod = HttpContext.Request.Method.ToUpperInvariant();
-        await useCase.ExecuteAsync(new DeleteClaimCommand(id, httpMethod), cancellationToken);
+        var command = new DeleteClaimCommand
+        {
+            Id = id,
+            HttpMethod = httpMethod
+        };
+
+        await useCase.ExecuteAsync(command,cancellationToken);
         return NoContent();
     }
 }

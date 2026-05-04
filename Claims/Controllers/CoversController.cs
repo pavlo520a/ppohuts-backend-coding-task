@@ -22,18 +22,16 @@ public class CoversController : ControllerBase
     /// Returns all covers.
     /// </summary>
     [HttpGet]
-    [ProducesResponseType(typeof(IEnumerable<CoverResponse>), StatusCodes.Status200OK)]
-    [SwaggerResponse(StatusCodes.Status200OK, "Returns all covers.", typeof(IEnumerable<CoverResponse>))]
-    public async Task<ActionResult<IEnumerable<CoverResponse>>> GetAllAsync(
+    [ProducesResponseType(typeof(IReadOnlyList<CoverResponse>), StatusCodes.Status200OK)]
+    [SwaggerResponse(StatusCodes.Status200OK, "Returns all covers.", typeof(IReadOnlyList<CoverResponse>))]
+    public async Task<ActionResult<IReadOnlyList<CoverResponse>>> GetAllAsync(
         [FromServices] IUseCase<GetCoversCommand, IReadOnlyList<Cover>> useCase,
         CancellationToken cancellationToken)
     {
-        var covers = await useCase.ExecuteAsync(new GetCoversCommand(), cancellationToken);
-        var mapped = covers
-            .Select(c => c.ToResponse())
-            .ToList();
+        var command = new GetCoversCommand();
+        var covers = await useCase.ExecuteAsync(command, cancellationToken);
 
-        return Ok(mapped);
+        return Ok(covers.ToResponse());
     }
 
     /// <summary>
@@ -41,6 +39,7 @@ public class CoversController : ControllerBase
     /// </summary>
     /// <param name="id">Cover identifier.</param>
     [HttpGet("{id}")]
+    [ActionName("GetByIdAsync")]
     [ProducesResponseType(typeof(CoverResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [SwaggerResponse(StatusCodes.Status200OK, "Returns the cover with the given id.", typeof(CoverResponse))]
@@ -50,7 +49,12 @@ public class CoversController : ControllerBase
         [FromServices] IUseCase<GetCoverByIdCommand, Cover?> useCase,
         CancellationToken cancellationToken)
     {
-        var cover = await useCase.ExecuteAsync(new GetCoverByIdCommand(id), cancellationToken);
+        var command = new GetCoverByIdCommand
+        {
+            Id = id
+        };
+
+        var cover = await useCase.ExecuteAsync(command, cancellationToken);
 
         if (cover is null)
         {
@@ -76,11 +80,8 @@ public class CoversController : ControllerBase
         var response = cover.ToResponse();
 
         return CreatedAtAction(
-            "GetById",
-            new
-            {
-                response.Id
-            },
+            nameof(GetByIdAsync),
+            new { id = response.Id },
             response);
     }
 
@@ -97,7 +98,13 @@ public class CoversController : ControllerBase
         CancellationToken cancellationToken)
     {
         var httpMethod = HttpContext.Request.Method.ToUpperInvariant();
-        await useCase.ExecuteAsync(new DeleteCoverCommand(id, httpMethod), cancellationToken);
+        var command = new DeleteCoverCommand
+        {
+            Id = id,
+            HttpMethod = httpMethod
+        };
+
+        await useCase.ExecuteAsync(command, cancellationToken);
         return NoContent();
     }
 }

@@ -2,7 +2,11 @@ using Claims.Domain.Enums;
 
 namespace Claims.Domain.Models.Formulas;
 
-public sealed record CoverPremiumFormulaArgs(
-    DateTime StartDate,
-    DateTime EndDate,
-    CoverType CoverType);
+public class CoverPremiumFormulaArgs
+{
+    public required DateTime StartDate { get; set; }
+
+    public required DateTime EndDate { get; set; }
+
+    public required CoverType CoverType { get; set; }
+}

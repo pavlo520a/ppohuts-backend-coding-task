@@ -7,7 +7,13 @@ namespace Claims.Mapping;
 public static class CoverApiMapping
 {
     public static CreateCoverCommand ToCommand(this CreateCoverRequest request, string httpMethod) =>
-        new(request.StartDate, request.EndDate, request.Type, httpMethod);
+        new()
+        {
+            StartDate = request.StartDate,
+            EndDate = request.EndDate,
+            Type = request.Type,
+            HttpMethod = httpMethod
+        };
 
     public static CoverResponse ToResponse(this Cover cover) =>
         new()
@@ -18,4 +24,7 @@ public static class CoverApiMapping
             Type = cover.Type,
             Premium = cover.Premium
         };
+
+    public static IReadOnlyList<CoverResponse> ToResponse(this IEnumerable<Cover> covers) =>
+        [.. covers.Select(c => c.ToResponse())];
 }

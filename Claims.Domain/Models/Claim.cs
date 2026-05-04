@@ -4,15 +4,15 @@ namespace Claims.Domain.Models;
 
 public class Claim
 {
-    public string Id { get; set; } = string.Empty;
+    public required string Id { get; set; }
 
-    public string CoverId { get; set; } = string.Empty;
+    public required string CoverId { get; set; }
 
-    public DateTime Created { get; set; }
+    public required DateTime Created { get; set; }
 
-    public string Name { get; set; } = string.Empty;
+    public required string Name { get; set; }
 
-    public ClaimType Type { get; set; }
+    public required ClaimType Type { get; set; }
 
-    public decimal DamageCost { get; set; }
+    public required decimal DamageCost { get; set; }
 }

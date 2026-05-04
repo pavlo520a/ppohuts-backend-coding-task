@@ -10,7 +10,13 @@ public sealed class ComputePremiumUseCase(IFormula<CoverPremiumFormulaArgs> prem
 {
     public Task<decimal> ExecuteAsync(ComputePremiumCommand command, CancellationToken _)
     {
-        var args = new CoverPremiumFormulaArgs(command.StartDate, command.EndDate, command.CoverType);
+        var args = new CoverPremiumFormulaArgs
+        {
+            StartDate = command.StartDate,
+            EndDate = command.EndDate,
+            CoverType = command.CoverType
+        };
+
         return Task.FromResult(premiumFormula.Calculate(args));
     }
 }

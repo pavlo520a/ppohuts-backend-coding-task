@@ -1,3 +1,5 @@
 namespace Claims.Application.Commands.Claims;
 
-public record GetClaimsCommand;
+public record GetClaimsCommand
+{
+}

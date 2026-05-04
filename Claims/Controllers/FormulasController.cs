@@ -28,7 +28,8 @@ public class FormulasController : ControllerBase
         [FromServices] IUseCase<ComputePremiumCommand, decimal> useCase,
         CancellationToken cancellationToken)
     {
-        var amount = await useCase.ExecuteAsync(request.ToCommand(), cancellationToken);
+        var httpMethod = HttpContext.Request.Method.ToUpperInvariant();
+        var amount = await useCase.ExecuteAsync(request.ToCommand(httpMethod), cancellationToken);
 
         return Ok(new ComputePremiumResponse
         {
