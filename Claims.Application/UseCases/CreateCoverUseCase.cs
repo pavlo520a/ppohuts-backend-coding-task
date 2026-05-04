@@ -10,7 +10,7 @@ public sealed class CreateCoverUseCase(
     IAuditTrailRepository auditTrailRepository,
     IPremiumCalculator premiumCalculator) : ICreateCoverUseCase
 {
-    public async Task<Cover> ExecuteAsync(CreateCoverCommand command, CancellationToken cancellationToken = default)
+    public async Task<Cover> ExecuteAsync(CreateCoverCommand command, CancellationToken cancellationToken)
     {
         var cover = new Cover
         {

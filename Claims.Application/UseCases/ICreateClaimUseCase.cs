@@ -5,5 +5,5 @@ namespace Claims.Application.UseCases;
 
 public interface ICreateClaimUseCase
 {
-    Task<Claim> ExecuteAsync(CreateClaimCommand command, CancellationToken cancellationToken = default);
+    Task<Claim> ExecuteAsync(CreateClaimCommand command, CancellationToken cancellationToken);
 }

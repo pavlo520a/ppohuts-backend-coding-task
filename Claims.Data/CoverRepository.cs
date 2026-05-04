@@ -7,13 +7,13 @@ namespace Claims.Data;
 
 public sealed class CoverRepository(ClaimsMongoDbContext context) : ICoverRepository
 {
-    public async Task<IReadOnlyList<Cover>> GetAllAsync(CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<Cover>> GetAllAsync(CancellationToken cancellationToken)
     {
         var items = await context.Covers.ToListAsync(cancellationToken);
         return [.. items.Select(ToDomain)];
     }
 
-    public async Task<Cover?> GetByIdAsync(string id, CancellationToken cancellationToken = default)
+    public async Task<Cover?> GetByIdAsync(string id, CancellationToken cancellationToken)
     {
         var entity = await context.Covers
             .Where(c => c.Id == id)
@@ -24,13 +24,13 @@ public sealed class CoverRepository(ClaimsMongoDbContext context) : ICoverReposi
             : ToDomain(entity);
     }
 
-    public async Task AddAsync(Cover cover, CancellationToken cancellationToken = default)
+    public async Task AddAsync(Cover cover, CancellationToken cancellationToken)
     {
         context.Covers.Add(ToDocument(cover));
         await context.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task DeleteAsync(string id, CancellationToken cancellationToken = default)
+    public async Task DeleteAsync(string id, CancellationToken cancellationToken)
     {
         var entity = await context.Covers
             .Where(c => c.Id == id)

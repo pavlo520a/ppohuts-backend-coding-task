@@ -6,6 +6,6 @@ namespace Claims.Application.UseCases;
 
 public sealed class GetClaimsUseCase(IClaimRepository claimRepository) : IGetClaimsUseCase
 {
-    public Task<IReadOnlyList<Claim>> ExecuteAsync(GetClaimsCommand command, CancellationToken cancellationToken = default) =>
+    public Task<IReadOnlyList<Claim>> ExecuteAsync(GetClaimsCommand command, CancellationToken cancellationToken) =>
         claimRepository.GetAllAsync(cancellationToken);
 }

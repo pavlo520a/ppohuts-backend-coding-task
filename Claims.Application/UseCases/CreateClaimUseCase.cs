@@ -8,7 +8,7 @@ public sealed class CreateClaimUseCase(
     IClaimRepository claimRepository,
     IAuditTrailRepository auditTrailRepository) : ICreateClaimUseCase
 {
-    public async Task<Claim> ExecuteAsync(CreateClaimCommand command, CancellationToken cancellationToken = default)
+    public async Task<Claim> ExecuteAsync(CreateClaimCommand command, CancellationToken cancellationToken)
     {
         var claim = new Claim
         {

@@ -4,5 +4,5 @@ namespace Claims.Application.UseCases;
 
 public interface IComputePremiumUseCase
 {
-    Task<decimal> ExecuteAsync(ComputePremiumCommand command, CancellationToken cancellationToken = default);
+    Task<decimal> ExecuteAsync(ComputePremiumCommand command, CancellationToken cancellationToken);
 }

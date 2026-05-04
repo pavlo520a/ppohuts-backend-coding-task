@@ -4,5 +4,5 @@ namespace Claims.Application.UseCases;
 
 public interface IDeleteCoverUseCase
 {
-    Task ExecuteAsync(DeleteCoverCommand command, CancellationToken cancellationToken = default);
+    Task ExecuteAsync(DeleteCoverCommand command, CancellationToken cancellationToken);
 }

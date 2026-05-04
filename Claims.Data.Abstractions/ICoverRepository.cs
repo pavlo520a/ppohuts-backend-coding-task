@@ -4,11 +4,11 @@ namespace Claims.Data.Abstractions;
 
 public interface ICoverRepository
 {
-    Task<IReadOnlyList<Cover>> GetAllAsync(CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<Cover>> GetAllAsync(CancellationToken cancellationToken);
 
-    Task<Cover?> GetByIdAsync(string id, CancellationToken cancellationToken = default);
+    Task<Cover?> GetByIdAsync(string id, CancellationToken cancellationToken);
 
-    Task AddAsync(Cover cover, CancellationToken cancellationToken = default);
+    Task AddAsync(Cover cover, CancellationToken cancellationToken);
 
-    Task DeleteAsync(string id, CancellationToken cancellationToken = default);
+    Task DeleteAsync(string id, CancellationToken cancellationToken);
 }

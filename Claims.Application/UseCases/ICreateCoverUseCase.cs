@@ -5,5 +5,5 @@ namespace Claims.Application.UseCases;
 
 public interface ICreateCoverUseCase
 {
-    Task<Cover> ExecuteAsync(CreateCoverCommand command, CancellationToken cancellationToken = default);
+    Task<Cover> ExecuteAsync(CreateCoverCommand command, CancellationToken cancellationToken);
 }

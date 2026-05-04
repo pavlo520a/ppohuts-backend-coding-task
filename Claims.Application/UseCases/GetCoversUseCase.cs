@@ -6,6 +6,6 @@ namespace Claims.Application.UseCases;
 
 public sealed class GetCoversUseCase(ICoverRepository coverRepository) : IGetCoversUseCase
 {
-    public Task<IReadOnlyList<Cover>> ExecuteAsync(GetCoversCommand command, CancellationToken cancellationToken = default) =>
+    public Task<IReadOnlyList<Cover>> ExecuteAsync(GetCoversCommand command, CancellationToken cancellationToken) =>
         coverRepository.GetAllAsync(cancellationToken);
 }

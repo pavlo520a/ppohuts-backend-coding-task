@@ -5,7 +5,7 @@ namespace Claims.Data.Auditing;
 
 public sealed class SqlAuditTrailRepository(AuditContext auditContext) : IAuditTrailRepository
 {
-    public async Task WriteClaimAuditAsync(string claimId, string httpMethod, CancellationToken cancellationToken = default)
+    public async Task WriteClaimAuditAsync(string claimId, string httpMethod, CancellationToken cancellationToken)
     {
         var claimAudit = new ClaimAudit
         {
@@ -18,7 +18,7 @@ public sealed class SqlAuditTrailRepository(AuditContext auditContext) : IAuditT
         await auditContext.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task WriteCoverAuditAsync(string coverId, string httpMethod, CancellationToken cancellationToken = default)
+    public async Task WriteCoverAuditAsync(string coverId, string httpMethod, CancellationToken cancellationToken)
     {
         var coverAudit = new CoverAudit
         {

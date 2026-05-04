@@ -7,7 +7,7 @@ public sealed class DeleteCoverUseCase(
     ICoverRepository coverRepository,
     IAuditTrailRepository auditTrailRepository) : IDeleteCoverUseCase
 {
-    public async Task ExecuteAsync(DeleteCoverCommand command, CancellationToken cancellationToken = default)
+    public async Task ExecuteAsync(DeleteCoverCommand command, CancellationToken cancellationToken)
     {
         await auditTrailRepository.WriteCoverAuditAsync(command.Id, "DELETE", cancellationToken);
         await coverRepository.DeleteAsync(command.Id, cancellationToken);

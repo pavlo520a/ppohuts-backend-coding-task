@@ -5,5 +5,5 @@ namespace Claims.Application.UseCases;
 
 public interface IGetCoverByIdUseCase
 {
-    Task<Cover?> ExecuteAsync(GetCoverByIdCommand command, CancellationToken cancellationToken = default);
+    Task<Cover?> ExecuteAsync(GetCoverByIdCommand command, CancellationToken cancellationToken);
 }
