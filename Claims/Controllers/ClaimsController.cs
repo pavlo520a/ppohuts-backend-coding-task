@@ -1,4 +1,4 @@
-using Claims.ApiModels;
+using Claims.ApiModels.Claims;
 using Claims.Application.Abstractions;
 using Claims.Application.Commands.Claims;
 using Claims.Mapping;
@@ -12,7 +12,7 @@ namespace Claims.Controllers;
 /// HTTP API for insurance claims.
 /// </summary>
 [ApiController]
-[Route("[controller]")]
+[Route("claims")]
 [Tags("Claims")]
 [ProducesResponseType(StatusCodes.Status500InternalServerError)]
 [SwaggerResponse(StatusCodes.Status500InternalServerError, "An unexpected error occurred.", typeof(ProblemDetails))]

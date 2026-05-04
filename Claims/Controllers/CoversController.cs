@@ -1,8 +1,7 @@
-using Claims.ApiModels;
+using Claims.ApiModels.Covers;
 using Claims.Application.Abstractions;
 using Claims.Application.Commands.Covers;
 using Claims.Domain.Models;
-using Claims.Domain.Enums;
 using Claims.Mapping;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
@@ -10,10 +9,10 @@ using Swashbuckle.AspNetCore.Annotations;
 namespace Claims.Controllers;
 
 /// <summary>
-/// HTTP API for covers and premium calculation.
+/// HTTP API for covers.
 /// </summary>
 [ApiController]
-[Route("[controller]")]
+[Route("covers")]
 [Tags("Covers")]
 [ProducesResponseType(StatusCodes.Status500InternalServerError)]
 [SwaggerResponse(StatusCodes.Status500InternalServerError, "An unexpected error occurred.", typeof(ProblemDetails))]
@@ -82,23 +81,6 @@ public class CoversController : ControllerBase
                 response.Id
             },
             response);
-    }
-
-    /// <summary>
-    /// Computes premium for a date range and cover type (does not persist a cover).
-    /// </summary>
-    [HttpPost("compute")]
-    [ProducesResponseType(typeof(decimal), StatusCodes.Status200OK)]
-    [SwaggerResponse(StatusCodes.Status200OK, "Returns the computed premium for the given date range and cover type. Nothing is persisted.", typeof(decimal))]
-    public ActionResult<decimal> ComputePremium(
-        [FromQuery] DateTime startDate,
-        [FromQuery] DateTime endDate,
-        [FromQuery] CoverType coverType,
-        [FromServices] ISyncUseCase<ComputePremiumCommand, decimal> useCase)
-    {
-        var command = new ComputePremiumCommand(startDate, endDate, coverType);
-        var amount = useCase.Execute(command);
-        return Ok(amount);
     }
 
     /// <summary>

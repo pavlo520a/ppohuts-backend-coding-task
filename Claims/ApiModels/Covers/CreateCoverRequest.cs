@@ -1,16 +1,12 @@
 using Claims.Domain.Enums;
 
-namespace Claims.ApiModels;
+namespace Claims.ApiModels.Covers;
 
-public sealed class CoverResponse
+public sealed class CreateCoverRequest
 {
-    public string Id { get; set; } = string.Empty;
-
     public DateTime StartDate { get; set; }
 
     public DateTime EndDate { get; set; }
 
     public CoverType Type { get; set; }
-
-    public decimal Premium { get; set; }
 }

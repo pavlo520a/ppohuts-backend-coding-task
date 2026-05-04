@@ -1,4 +1,4 @@
-using Claims.ApiModels;
+using Claims.ApiModels.Covers;
 using Claims.Application.Commands.Covers;
 using Claims.Domain.Models;
 
