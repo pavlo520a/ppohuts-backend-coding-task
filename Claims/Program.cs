@@ -1,5 +1,5 @@
-using Claims;
 using Claims.Application;
+using Claims.ExceptionHandlers;
 using Claims.Auditing;
 using Claims.Data;
 using Claims.Data.Auditing;
@@ -23,7 +23,15 @@ builder.Services.AddClaimsData(builder.Configuration);
 builder.Services.AddClaimsAuditing(builder.Configuration);
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    if (File.Exists(xmlPath))
+    {
+        options.IncludeXmlComments(xmlPath);
+    }
+});
 
 var app = builder.Build();
 
