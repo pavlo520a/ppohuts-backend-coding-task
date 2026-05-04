@@ -90,16 +90,14 @@ public class CoversController : ControllerBase
     [HttpPost("compute")]
     [ProducesResponseType(typeof(decimal), StatusCodes.Status200OK)]
     [SwaggerResponse(StatusCodes.Status200OK, "Returns the computed premium for the given date range and cover type. Nothing is persisted.", typeof(decimal))]
-    public async Task<ActionResult<decimal>> ComputePremiumAsync(
+    public ActionResult<decimal> ComputePremium(
         [FromQuery] DateTime startDate,
         [FromQuery] DateTime endDate,
         [FromQuery] CoverType coverType,
-        [FromServices] IUseCase<ComputePremiumCommand, decimal> useCase,
-        CancellationToken cancellationToken)
+        [FromServices] ISyncUseCase<ComputePremiumCommand, decimal> useCase)
     {
         var command = new ComputePremiumCommand(startDate, endDate, coverType);
-        var amount = await useCase.ExecuteAsync(command, cancellationToken);
-
+        var amount = useCase.Execute(command);
         return Ok(amount);
     }
 

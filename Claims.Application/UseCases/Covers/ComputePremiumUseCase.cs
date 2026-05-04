@@ -8,9 +8,9 @@ namespace Claims.Application.UseCases.Covers;
 public sealed class ComputePremiumUseCase(IFormula<CoverPremiumFormulaArgs> premiumFormula)
     : IUseCase<ComputePremiumCommand, decimal>
 {
-    public Task<decimal> ExecuteAsync(ComputePremiumCommand command, CancellationToken cancellationToken)
+    public decimal Execute(ComputePremiumCommand command)
     {
         var args = new CoverPremiumFormulaArgs(command.StartDate, command.EndDate, command.CoverType);
-        return Task.FromResult(premiumFormula.Calculate(args));
+        return premiumFormula.Calculate(args);
     }
 }
