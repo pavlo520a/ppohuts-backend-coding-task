@@ -1,7 +1,8 @@
 using Claims.ApiModels;
-using Claims.Application.Commands;
-using Claims.Application.UseCases;
+using Claims.Application.Abstractions;
+using Claims.Application.Commands.Claims;
 using Claims.Mapping;
+using Claims.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Claims.Controllers;
@@ -21,7 +22,7 @@ public class ClaimsController : ControllerBase
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<ClaimResponse>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IEnumerable<ClaimResponse>>> GetAllAsync(
-        [FromServices] IGetClaimsUseCase useCase,
+        [FromServices] IUseCase<GetClaimsCommand, IReadOnlyList<Claim>> useCase,
         CancellationToken cancellationToken)
     {
         var claims = await useCase.ExecuteAsync(new GetClaimsCommand(), cancellationToken);
@@ -41,7 +42,7 @@ public class ClaimsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<ClaimResponse>> GetByIdAsync(
         [FromRoute] string id,
-        [FromServices] IGetClaimByIdUseCase useCase,
+        [FromServices] IUseCase<GetClaimByIdCommand, Claim?> useCase,
         CancellationToken cancellationToken)
     {
         var claim = await useCase.ExecuteAsync(new GetClaimByIdCommand(id), cancellationToken);
@@ -61,7 +62,7 @@ public class ClaimsController : ControllerBase
     [ProducesResponseType(typeof(ClaimResponse), StatusCodes.Status201Created)]
     public async Task<ActionResult<ClaimResponse>> CreateAsync(
         [FromBody] CreateClaimRequest request,
-        [FromServices] ICreateClaimUseCase useCase,
+        [FromServices] IUseCase<CreateClaimCommand, Claim> useCase,
         CancellationToken cancellationToken)
     {
         var claim = await useCase.ExecuteAsync(request.ToCommand(), cancellationToken);
@@ -84,7 +85,7 @@ public class ClaimsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> DeleteAsync(
         [FromRoute] string id,
-        [FromServices] IDeleteClaimUseCase useCase,
+        [FromServices] IUseCase<DeleteClaimCommand> useCase,
         CancellationToken cancellationToken)
     {
         await useCase.ExecuteAsync(new DeleteClaimCommand(id), cancellationToken);

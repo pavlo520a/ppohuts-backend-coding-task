@@ -1,12 +1,13 @@
-using Claims.Application.Commands;
+using Claims.Application.Abstractions;
+using Claims.Application.Commands.Claims;
 using Claims.Data.Abstractions;
-using Claims.Domain;
+using Claims.Domain.Models;
 
-namespace Claims.Application.UseCases;
+namespace Claims.Application.UseCases.Claims;
 
 public sealed class CreateClaimUseCase(
     IClaimRepository claimRepository,
-    IAuditTrailRepository auditTrailRepository) : ICreateClaimUseCase
+    IAuditTrailRepository auditTrailRepository) : IUseCase<CreateClaimCommand, Claim>
 {
     public async Task<Claim> ExecuteAsync(CreateClaimCommand command, CancellationToken cancellationToken)
     {

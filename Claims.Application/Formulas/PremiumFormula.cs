@@ -1,11 +1,17 @@
-using Claims.Domain;
+using Claims.Application.Abstractions.Formulas;
+using Claims.Domain.Enums;
+using Claims.Domain.Models.Formulas;
 
-namespace Claims.Application.Premium;
+namespace Claims.Application.Formulas;
 
-public sealed class PremiumCalculator : IPremiumCalculator
+public sealed class PremiumFormula : IFormula<CoverPremiumFormulaArgs>
 {
-    public decimal Compute(DateTime startDate, DateTime endDate, CoverType coverType)
+    public decimal Calculate(CoverPremiumFormulaArgs args)
     {
+        var coverType = args.CoverType;
+        var startDate = args.StartDate;
+        var endDate = args.EndDate;
+
         var multiplier = 1.3m;
         if (coverType == CoverType.Yacht)
         {

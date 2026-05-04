@@ -1,6 +1,6 @@
 using Claims.Data.Abstractions;
 using Claims.Data.Persistence;
-using Claims.Domain;
+using Claims.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Claims.Data;

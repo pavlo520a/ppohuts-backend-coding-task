@@ -1,11 +1,12 @@
-using Claims.Application.Commands;
+using Claims.Application.Abstractions;
+using Claims.Application.Commands.Claims;
 using Claims.Data.Abstractions;
 
-namespace Claims.Application.UseCases;
+namespace Claims.Application.UseCases.Claims;
 
 public sealed class DeleteClaimUseCase(
     IClaimRepository claimRepository,
-    IAuditTrailRepository auditTrailRepository) : IDeleteClaimUseCase
+    IAuditTrailRepository auditTrailRepository) : IUseCase<DeleteClaimCommand>
 {
     public async Task ExecuteAsync(DeleteClaimCommand command, CancellationToken cancellationToken)
     {

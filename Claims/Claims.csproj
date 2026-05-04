@@ -15,6 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Claims.Application.Abstractions\Claims.Application.Abstractions.csproj" />
     <ProjectReference Include="..\Claims.Application\Claims.Application.csproj" />
     <ProjectReference Include="..\Claims.Data\Claims.Data.csproj" />
     <ProjectReference Include="..\Claims.Data.Auditing\Claims.Data.Auditing.csproj" />

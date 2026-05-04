@@ -1,4 +1,4 @@
-using Claims.Domain;
+using Claims.Domain.Enums;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace Claims.Data.Persistence;

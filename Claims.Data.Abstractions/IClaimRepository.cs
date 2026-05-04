@@ -1,4 +1,4 @@
-using Claims.Domain;
+using Claims.Domain.Models;
 
 namespace Claims.Data.Abstractions;
 

@@ -1,11 +1,12 @@
-using Claims.Application.Commands;
+using Claims.Application.Abstractions;
+using Claims.Application.Commands.Covers;
 using Claims.Data.Abstractions;
 
-namespace Claims.Application.UseCases;
+namespace Claims.Application.UseCases.Covers;
 
 public sealed class DeleteCoverUseCase(
     ICoverRepository coverRepository,
-    IAuditTrailRepository auditTrailRepository) : IDeleteCoverUseCase
+    IAuditTrailRepository auditTrailRepository) : IUseCase<DeleteCoverCommand>
 {
     public async Task ExecuteAsync(DeleteCoverCommand command, CancellationToken cancellationToken)
     {

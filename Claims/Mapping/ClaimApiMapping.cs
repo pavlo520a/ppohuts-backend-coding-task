@@ -1,6 +1,6 @@
 using Claims.ApiModels;
-using Claims.Application.Commands;
-using Claims.Domain;
+using Claims.Application.Commands.Claims;
+using Claims.Domain.Models;
 
 namespace Claims.Mapping;
 

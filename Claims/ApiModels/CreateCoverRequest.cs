@@ -1,4 +1,4 @@
-using Claims.Domain;
+using Claims.Domain.Enums;
 
 namespace Claims.ApiModels;
 

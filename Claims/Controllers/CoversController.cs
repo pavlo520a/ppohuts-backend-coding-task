@@ -1,7 +1,8 @@
 using Claims.ApiModels;
-using Claims.Application.Commands;
-using Claims.Application.UseCases;
-using Claims.Domain;
+using Claims.Application.Abstractions;
+using Claims.Application.Commands.Covers;
+using Claims.Domain.Models;
+using Claims.Domain.Enums;
 using Claims.Mapping;
 using Microsoft.AspNetCore.Mvc;
 
@@ -22,7 +23,7 @@ public class CoversController : ControllerBase
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<CoverResponse>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IEnumerable<CoverResponse>>> GetAllAsync(
-        [FromServices] IGetCoversUseCase useCase,
+        [FromServices] IUseCase<GetCoversCommand, IReadOnlyList<Cover>> useCase,
         CancellationToken cancellationToken)
     {
         var covers = await useCase.ExecuteAsync(new GetCoversCommand(), cancellationToken);
@@ -42,7 +43,7 @@ public class CoversController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<CoverResponse>> GetByIdAsync(
         [FromRoute] string id,
-        [FromServices] IGetCoverByIdUseCase useCase,
+        [FromServices] IUseCase<GetCoverByIdCommand, Cover?> useCase,
         CancellationToken cancellationToken)
     {
         var cover = await useCase.ExecuteAsync(new GetCoverByIdCommand(id), cancellationToken);
@@ -62,7 +63,7 @@ public class CoversController : ControllerBase
     [ProducesResponseType(typeof(CoverResponse), StatusCodes.Status201Created)]
     public async Task<ActionResult<CoverResponse>> CreateAsync(
         [FromBody] CreateCoverRequest request,
-        [FromServices] ICreateCoverUseCase useCase,
+        [FromServices] IUseCase<CreateCoverCommand, Cover> useCase,
         CancellationToken cancellationToken)
     {
         var cover = await useCase.ExecuteAsync(request.ToCommand(), cancellationToken);
@@ -86,7 +87,7 @@ public class CoversController : ControllerBase
         [FromQuery] DateTime startDate,
         [FromQuery] DateTime endDate,
         [FromQuery] CoverType coverType,
-        [FromServices] IComputePremiumUseCase useCase,
+        [FromServices] IUseCase<ComputePremiumCommand, decimal> useCase,
         CancellationToken cancellationToken)
     {
         var command = new ComputePremiumCommand(startDate, endDate, coverType);
@@ -103,7 +104,7 @@ public class CoversController : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> DeleteAsync(
         [FromRoute] string id,
-        [FromServices] IDeleteCoverUseCase useCase,
+        [FromServices] IUseCase<DeleteCoverCommand> useCase,
         CancellationToken cancellationToken)
     {
         await useCase.ExecuteAsync(new DeleteCoverCommand(id), cancellationToken);
