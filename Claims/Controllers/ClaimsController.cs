@@ -15,7 +15,7 @@ namespace Claims.Controllers;
 [Route("[controller]")]
 [Tags("Claims")]
 [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-[SwaggerResponse(StatusCodes.Status500InternalServerError, "An unexpected error occurred. Problem details may include a correlation id.", typeof(ProblemDetails))]
+[SwaggerResponse(StatusCodes.Status500InternalServerError, "An unexpected error occurred.", typeof(ProblemDetails))]
 public class ClaimsController : ControllerBase
 {
     /// <summary>
@@ -23,7 +23,7 @@ public class ClaimsController : ControllerBase
     /// </summary>
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<ClaimResponse>), StatusCodes.Status200OK)]
-    [SwaggerResponse(StatusCodes.Status200OK, "Returns every claim in the store.", typeof(IEnumerable<ClaimResponse>))]
+    [SwaggerResponse(StatusCodes.Status200OK, "Returns all claims.", typeof(IEnumerable<ClaimResponse>))]
     public async Task<ActionResult<IEnumerable<ClaimResponse>>> GetAllAsync(
         [FromServices] IUseCase<GetClaimsCommand, IReadOnlyList<Claim>> useCase,
         CancellationToken cancellationToken)
@@ -89,7 +89,7 @@ public class ClaimsController : ControllerBase
     /// <param name="id">Claim identifier.</param>
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [SwaggerResponse(StatusCodes.Status204NoContent, "The claim was deleted successfully. No response body.")]
+    [SwaggerResponse(StatusCodes.Status204NoContent, "The claim was deleted successfully.")]
     public async Task<IActionResult> DeleteAsync(
         [FromRoute] string id,
         [FromServices] IUseCase<DeleteClaimCommand> useCase,

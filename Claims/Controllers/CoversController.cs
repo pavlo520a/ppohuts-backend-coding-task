@@ -16,7 +16,7 @@ namespace Claims.Controllers;
 [Route("[controller]")]
 [Tags("Covers")]
 [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-[SwaggerResponse(StatusCodes.Status500InternalServerError, "An unexpected error occurred. Problem details may include a correlation id.", typeof(ProblemDetails))]
+[SwaggerResponse(StatusCodes.Status500InternalServerError, "An unexpected error occurred.", typeof(ProblemDetails))]
 public class CoversController : ControllerBase
 {
     /// <summary>
@@ -24,7 +24,7 @@ public class CoversController : ControllerBase
     /// </summary>
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<CoverResponse>), StatusCodes.Status200OK)]
-    [SwaggerResponse(StatusCodes.Status200OK, "Returns every cover in the store.", typeof(IEnumerable<CoverResponse>))]
+    [SwaggerResponse(StatusCodes.Status200OK, "Returns all covers.", typeof(IEnumerable<CoverResponse>))]
     public async Task<ActionResult<IEnumerable<CoverResponse>>> GetAllAsync(
         [FromServices] IUseCase<GetCoversCommand, IReadOnlyList<Cover>> useCase,
         CancellationToken cancellationToken)
@@ -109,7 +109,7 @@ public class CoversController : ControllerBase
     /// <param name="id">Cover identifier.</param>
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [SwaggerResponse(StatusCodes.Status204NoContent, "The cover was deleted successfully. No response body.")]
+    [SwaggerResponse(StatusCodes.Status204NoContent, "The cover was deleted successfully.")]
     public async Task<IActionResult> DeleteAsync(
         [FromRoute] string id,
         [FromServices] IUseCase<DeleteCoverCommand> useCase,
