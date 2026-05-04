@@ -1,16 +1,16 @@
-using Claims.Data.Abstractions;
-using Claims.Data.Persistence;
+using Claims.Data.Abstractions.Repositories;
+using Claims.Data.Documents;
 using Claims.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace Claims.Data;
+namespace Claims.Data.Repositories;
 
 public sealed class ClaimRepository(ClaimsMongoDbContext context) : IClaimRepository
 {
     public async Task<IReadOnlyList<Claim>> GetAllAsync(CancellationToken cancellationToken)
     {
         var items = await context.Claims.ToListAsync(cancellationToken);
-        return items.Select(ToDomain).ToList();
+        return [.. items.Select(ToDomain)];
     }
 
     public async Task<Claim?> GetByIdAsync(string id, CancellationToken cancellationToken)
@@ -18,7 +18,10 @@ public sealed class ClaimRepository(ClaimsMongoDbContext context) : IClaimReposi
         var entity = await context.Claims
             .Where(c => c.Id == id)
             .SingleOrDefaultAsync(cancellationToken);
-        return entity is null ? null : ToDomain(entity);
+
+        return entity is null
+            ? null
+            : ToDomain(entity);
     }
 
     public async Task AddAsync(Claim claim, CancellationToken cancellationToken)
@@ -32,6 +35,7 @@ public sealed class ClaimRepository(ClaimsMongoDbContext context) : IClaimReposi
         var entity = await context.Claims
             .Where(c => c.Id == id)
             .SingleOrDefaultAsync(cancellationToken);
+
         if (entity is not null)
         {
             context.Claims.Remove(entity);

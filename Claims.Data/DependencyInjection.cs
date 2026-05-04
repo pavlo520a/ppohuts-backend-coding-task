@@ -1,4 +1,5 @@
-using Claims.Data.Abstractions;
+using Claims.Data.Abstractions.Repositories;
+using Claims.Data.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -8,7 +9,7 @@ namespace Claims.Data;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddClaimsData(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddData(this IServiceCollection services, IConfiguration configuration)
     {
         var mongoConnectionString = configuration["MongoDb:ConnectionString"]
             ?? throw new InvalidOperationException(

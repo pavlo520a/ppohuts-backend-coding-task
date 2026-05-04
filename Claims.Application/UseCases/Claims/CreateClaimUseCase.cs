@@ -1,13 +1,14 @@
 using Claims.Application.Abstractions;
 using Claims.Application.Commands.Claims;
-using Claims.Data.Abstractions;
+using Claims.Data.Abstractions.Repositories;
+using Claims.Data.Auditing.Abstractions.Repositories;
 using Claims.Domain.Models;
 
 namespace Claims.Application.UseCases.Claims;
 
 public sealed class CreateClaimUseCase(
     IClaimRepository claimRepository,
-    IAuditTrailRepository auditTrailRepository) : IUseCase<CreateClaimCommand, Claim>
+    IClaimAuditTrailRepository claimAuditTrailRepository) : IUseCase<CreateClaimCommand, Claim>
 {
     public async Task<Claim> ExecuteAsync(CreateClaimCommand command, CancellationToken cancellationToken)
     {
@@ -22,7 +23,7 @@ public sealed class CreateClaimUseCase(
         };
 
         await claimRepository.AddAsync(claim, cancellationToken);
-        await auditTrailRepository.WriteClaimAuditAsync(claim.Id, "POST", cancellationToken);
+        await claimAuditTrailRepository.WriteAsync(claim.Id, "POST", cancellationToken);
         return claim;
     }
 }

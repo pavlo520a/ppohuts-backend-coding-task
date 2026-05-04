@@ -1,7 +1,7 @@
 using Claims.Domain.Enums;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace Claims.Data.Persistence;
+namespace Claims.Data.Documents;
 
 public class ClaimDocument
 {

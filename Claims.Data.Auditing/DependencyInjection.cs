@@ -1,5 +1,5 @@
-using Claims.Auditing;
-using Claims.Data.Abstractions;
+using Claims.Data.Auditing.Abstractions.Repositories;
+using Claims.Data.Auditing.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -8,7 +8,7 @@ namespace Claims.Data.Auditing;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddClaimsAuditing(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddAuditing(this IServiceCollection services, IConfiguration configuration)
     {
         var sqlConnectionString = configuration.GetConnectionString("SqlServer")
             ?? throw new InvalidOperationException(
@@ -17,7 +17,8 @@ public static class DependencyInjection
         services.AddDbContext<AuditContext>(options =>
             options.UseSqlServer(sqlConnectionString));
 
-        services.AddScoped<IAuditTrailRepository, SqlAuditTrailRepository>();
+        services.AddScoped<IClaimAuditTrailRepository, ClaimAuditTrailRepository>();
+        services.AddScoped<ICoverAuditTrailRepository, CoverAuditTrailRepository>();
 
         return services;
     }

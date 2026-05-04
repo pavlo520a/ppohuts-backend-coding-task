@@ -4,6 +4,7 @@ using Claims.Application.Commands.Claims;
 using Claims.Mapping;
 using Claims.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace Claims.Controllers;
 
@@ -14,6 +15,7 @@ namespace Claims.Controllers;
 [Route("[controller]")]
 [Tags("Claims")]
 [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+[SwaggerResponse(StatusCodes.Status500InternalServerError, "An unexpected error occurred. Problem details may include a correlation id.", typeof(ProblemDetails))]
 public class ClaimsController : ControllerBase
 {
     /// <summary>
@@ -21,6 +23,7 @@ public class ClaimsController : ControllerBase
     /// </summary>
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<ClaimResponse>), StatusCodes.Status200OK)]
+    [SwaggerResponse(StatusCodes.Status200OK, "Returns every claim in the store.", typeof(IEnumerable<ClaimResponse>))]
     public async Task<ActionResult<IEnumerable<ClaimResponse>>> GetAllAsync(
         [FromServices] IUseCase<GetClaimsCommand, IReadOnlyList<Claim>> useCase,
         CancellationToken cancellationToken)
@@ -40,6 +43,8 @@ public class ClaimsController : ControllerBase
     [HttpGet("{id}")]
     [ProducesResponseType(typeof(ClaimResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [SwaggerResponse(StatusCodes.Status200OK, "Returns the claim with the given id.", typeof(ClaimResponse))]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "No claim exists for the given id.")]
     public async Task<ActionResult<ClaimResponse>> GetByIdAsync(
         [FromRoute] string id,
         [FromServices] IUseCase<GetClaimByIdCommand, Claim?> useCase,
@@ -60,6 +65,7 @@ public class ClaimsController : ControllerBase
     /// </summary>
     [HttpPost]
     [ProducesResponseType(typeof(ClaimResponse), StatusCodes.Status201Created)]
+    [SwaggerResponse(StatusCodes.Status201Created, "The claim was created. The response body contains the new resource.", typeof(ClaimResponse))]
     public async Task<ActionResult<ClaimResponse>> CreateAsync(
         [FromBody] CreateClaimRequest request,
         [FromServices] IUseCase<CreateClaimCommand, Claim> useCase,
@@ -83,6 +89,7 @@ public class ClaimsController : ControllerBase
     /// <param name="id">Claim identifier.</param>
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [SwaggerResponse(StatusCodes.Status204NoContent, "The claim was deleted successfully. No response body.")]
     public async Task<IActionResult> DeleteAsync(
         [FromRoute] string id,
         [FromServices] IUseCase<DeleteClaimCommand> useCase,

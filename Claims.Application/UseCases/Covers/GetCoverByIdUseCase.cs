@@ -1,6 +1,6 @@
 using Claims.Application.Abstractions;
 using Claims.Application.Commands.Covers;
-using Claims.Data.Abstractions;
+using Claims.Data.Abstractions.Repositories;
 using Claims.Domain.Models;
 
 namespace Claims.Application.UseCases.Covers;

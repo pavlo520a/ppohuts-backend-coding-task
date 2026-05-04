@@ -1,6 +1,5 @@
 using Claims.Application;
 using Claims.ExceptionHandlers;
-using Claims.Auditing;
 using Claims.Data;
 using Claims.Data.Auditing;
 using Microsoft.EntityFrameworkCore;
@@ -18,13 +17,14 @@ builder.Services
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 
-builder.Services.AddClaimsApplication();
-builder.Services.AddClaimsData(builder.Configuration);
-builder.Services.AddClaimsAuditing(builder.Configuration);
+builder.Services.AddApplication();
+builder.Services.AddData(builder.Configuration);
+builder.Services.AddAuditing(builder.Configuration);
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
+    options.EnableAnnotations();
     var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
     var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
     if (File.Exists(xmlPath))

@@ -5,6 +5,7 @@ using Claims.Domain.Models;
 using Claims.Domain.Enums;
 using Claims.Mapping;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace Claims.Controllers;
 
@@ -15,6 +16,7 @@ namespace Claims.Controllers;
 [Route("[controller]")]
 [Tags("Covers")]
 [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+[SwaggerResponse(StatusCodes.Status500InternalServerError, "An unexpected error occurred. Problem details may include a correlation id.", typeof(ProblemDetails))]
 public class CoversController : ControllerBase
 {
     /// <summary>
@@ -22,6 +24,7 @@ public class CoversController : ControllerBase
     /// </summary>
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<CoverResponse>), StatusCodes.Status200OK)]
+    [SwaggerResponse(StatusCodes.Status200OK, "Returns every cover in the store.", typeof(IEnumerable<CoverResponse>))]
     public async Task<ActionResult<IEnumerable<CoverResponse>>> GetAllAsync(
         [FromServices] IUseCase<GetCoversCommand, IReadOnlyList<Cover>> useCase,
         CancellationToken cancellationToken)
@@ -41,6 +44,8 @@ public class CoversController : ControllerBase
     [HttpGet("{id}")]
     [ProducesResponseType(typeof(CoverResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [SwaggerResponse(StatusCodes.Status200OK, "Returns the cover with the given id.", typeof(CoverResponse))]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "No cover exists for the given id.")]
     public async Task<ActionResult<CoverResponse>> GetByIdAsync(
         [FromRoute] string id,
         [FromServices] IUseCase<GetCoverByIdCommand, Cover?> useCase,
@@ -61,6 +66,7 @@ public class CoversController : ControllerBase
     /// </summary>
     [HttpPost]
     [ProducesResponseType(typeof(CoverResponse), StatusCodes.Status201Created)]
+    [SwaggerResponse(StatusCodes.Status201Created, "The cover was created with a server-calculated premium. The response body contains the new resource.", typeof(CoverResponse))]
     public async Task<ActionResult<CoverResponse>> CreateAsync(
         [FromBody] CreateCoverRequest request,
         [FromServices] IUseCase<CreateCoverCommand, Cover> useCase,
@@ -83,6 +89,7 @@ public class CoversController : ControllerBase
     /// </summary>
     [HttpPost("compute")]
     [ProducesResponseType(typeof(decimal), StatusCodes.Status200OK)]
+    [SwaggerResponse(StatusCodes.Status200OK, "Returns the computed premium for the given date range and cover type. Nothing is persisted.", typeof(decimal))]
     public async Task<ActionResult<decimal>> ComputePremiumAsync(
         [FromQuery] DateTime startDate,
         [FromQuery] DateTime endDate,
@@ -102,6 +109,7 @@ public class CoversController : ControllerBase
     /// <param name="id">Cover identifier.</param>
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [SwaggerResponse(StatusCodes.Status204NoContent, "The cover was deleted successfully. No response body.")]
     public async Task<IActionResult> DeleteAsync(
         [FromRoute] string id,
         [FromServices] IUseCase<DeleteCoverCommand> useCase,

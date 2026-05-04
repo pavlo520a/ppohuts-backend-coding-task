@@ -1,9 +1,9 @@
-using Claims.Data.Abstractions;
-using Claims.Data.Persistence;
+using Claims.Data.Abstractions.Repositories;
+using Claims.Data.Documents;
 using Claims.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace Claims.Data;
+namespace Claims.Data.Repositories;
 
 public sealed class CoverRepository(ClaimsMongoDbContext context) : ICoverRepository
 {

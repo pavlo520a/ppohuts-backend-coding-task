@@ -1,6 +1,6 @@
 using Claims.Domain.Models;
 
-namespace Claims.Data.Abstractions;
+namespace Claims.Data.Abstractions.Repositories;
 
 public interface ICoverRepository
 {

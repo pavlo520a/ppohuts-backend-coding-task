@@ -1,16 +1,17 @@
 using Claims.Application.Abstractions;
 using Claims.Application.Commands.Claims;
-using Claims.Data.Abstractions;
+using Claims.Data.Abstractions.Repositories;
+using Claims.Data.Auditing.Abstractions.Repositories;
 
 namespace Claims.Application.UseCases.Claims;
 
 public sealed class DeleteClaimUseCase(
     IClaimRepository claimRepository,
-    IAuditTrailRepository auditTrailRepository) : IUseCase<DeleteClaimCommand>
+    IClaimAuditTrailRepository claimAuditTrailRepository) : IUseCase<DeleteClaimCommand>
 {
     public async Task ExecuteAsync(DeleteClaimCommand command, CancellationToken cancellationToken)
     {
-        await auditTrailRepository.WriteClaimAuditAsync(command.Id, "DELETE", cancellationToken);
+        await claimAuditTrailRepository.WriteAsync(command.Id, "DELETE", cancellationToken);
         await claimRepository.DeleteAsync(command.Id, cancellationToken);
     }
 }

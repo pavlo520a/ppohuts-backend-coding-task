@@ -1,7 +1,8 @@
 using Claims.Application.Abstractions;
 using Claims.Application.Abstractions.Formulas;
 using Claims.Application.Commands.Covers;
-using Claims.Data.Abstractions;
+using Claims.Data.Abstractions.Repositories;
+using Claims.Data.Auditing.Abstractions.Repositories;
 using Claims.Domain.Models;
 using Claims.Domain.Models.Formulas;
 
@@ -9,7 +10,7 @@ namespace Claims.Application.UseCases.Covers;
 
 public sealed class CreateCoverUseCase(
     ICoverRepository coverRepository,
-    IAuditTrailRepository auditTrailRepository,
+    ICoverAuditTrailRepository coverAuditTrailRepository,
     IFormula<CoverPremiumFormulaArgs> premiumFormula) : IUseCase<CreateCoverCommand, Cover>
 {
     public async Task<Cover> ExecuteAsync(CreateCoverCommand command, CancellationToken cancellationToken)
@@ -25,7 +26,7 @@ public sealed class CreateCoverUseCase(
         };
 
         await coverRepository.AddAsync(cover, cancellationToken);
-        await auditTrailRepository.WriteCoverAuditAsync(cover.Id, "POST", cancellationToken);
+        await coverAuditTrailRepository.WriteAsync(cover.Id, "POST", cancellationToken);
         return cover;
     }
 }

@@ -1,15 +1,11 @@
+using Claims.Data.Auditing.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace Claims.Auditing;
+namespace Claims.Data.Auditing;
 
-public class AuditContext : DbContext
+public class AuditContext(DbContextOptions<AuditContext> options) : DbContext(options)
 {
-    public AuditContext(DbContextOptions<AuditContext> options)
-        : base(options)
-    {
-    }
+    public DbSet<ClaimAudit> ClaimAudits => Set<ClaimAudit>();
 
-    public DbSet<ClaimAudit> ClaimAudits { get; set; } = null!;
-
-    public DbSet<CoverAudit> CoverAudits { get; set; } = null!;
+    public DbSet<CoverAudit> CoverAudits => Set<CoverAudit>();
 }

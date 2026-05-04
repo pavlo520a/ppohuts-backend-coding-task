@@ -1,16 +1,11 @@
-using Claims.Data.Persistence;
+using Claims.Data.Documents;
 using Microsoft.EntityFrameworkCore;
 using MongoDB.EntityFrameworkCore.Extensions;
 
 namespace Claims.Data;
 
-public class ClaimsMongoDbContext : DbContext
+public class ClaimsMongoDbContext(DbContextOptions<ClaimsMongoDbContext> options) : DbContext(options)
 {
-    public ClaimsMongoDbContext(DbContextOptions<ClaimsMongoDbContext> options)
-        : base(options)
-    {
-    }
-
     public DbSet<ClaimDocument> Claims => Set<ClaimDocument>();
 
     public DbSet<CoverDocument> Covers => Set<CoverDocument>();
@@ -18,7 +13,13 @@ public class ClaimsMongoDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-        modelBuilder.Entity<ClaimDocument>().ToCollection("claims");
-        modelBuilder.Entity<CoverDocument>().ToCollection("covers");
+
+        modelBuilder
+            .Entity<ClaimDocument>()
+            .ToCollection("claims");
+
+        modelBuilder
+            .Entity<CoverDocument>()
+            .ToCollection("covers");
     }
 }

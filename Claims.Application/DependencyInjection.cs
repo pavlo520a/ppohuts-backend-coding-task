@@ -13,7 +13,7 @@ namespace Claims.Application;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddClaimsApplication(this IServiceCollection services)
+    public static IServiceCollection AddApplication(this IServiceCollection services)
     {
         services.AddScoped<IFormula<CoverPremiumFormulaArgs>, PremiumFormula>();
 
