@@ -2,27 +2,20 @@ using Claims.Auditing;
 using Claims.Controllers;
 using Microsoft.EntityFrameworkCore;
 using MongoDB.Driver;
-using System.Runtime.InteropServices;
 using System.Text.Json.Serialization;
-using Testcontainers.MongoDb;
-using Testcontainers.MsSql;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Start Testcontainers for SQL Server and MongoDB
-var sqlContainer = (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
-        ? new MsSqlBuilder()
-            .WithImage("mcr.microsoft.com/mssql/server:2022-latest")
-        : new()
+var sqlConnectionString = builder.Configuration.GetConnectionString("SqlServer")
+    ?? throw new InvalidOperationException(
+        "Connection string 'SqlServer' is not configured. Set ConnectionStrings:SqlServer in appsettings, environment variables, or user secrets.");
 
-    ).Build();
-
-var mongoContainer = new MongoDbBuilder()
-    .WithImage("mongo:latest")
-    .Build();
-
-await sqlContainer.StartAsync();
-await mongoContainer.StartAsync();
+var mongoConnectionString = builder.Configuration["MongoDb:ConnectionString"]
+    ?? throw new InvalidOperationException(
+        "MongoDb:ConnectionString is not configured.");
+var mongoDatabaseName = builder.Configuration["MongoDb:DatabaseName"]
+    ?? throw new InvalidOperationException(
+        "MongoDb:DatabaseName is not configured.");
 
 // Add services to the container.
 builder.Services
@@ -33,12 +26,12 @@ builder.Services
     });
 
 builder.Services.AddDbContext<AuditContext>(options =>
-    options.UseSqlServer(sqlContainer.GetConnectionString()));
+    options.UseSqlServer(sqlConnectionString));
 
 builder.Services.AddDbContext<ClaimsContext>(options =>
 {
-    var client = new MongoClient(mongoContainer.GetConnectionString());
-    var database = client.GetDatabase(builder.Configuration["MongoDb:DatabaseName"]); // Use a default/test database name
+    var client = new MongoClient(mongoConnectionString);
+    var database = client.GetDatabase(mongoDatabaseName);
     options.UseMongoDB(database.Client, database.DatabaseNamespace.DatabaseName);
 });
 
