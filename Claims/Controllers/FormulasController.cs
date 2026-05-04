@@ -18,11 +18,11 @@ namespace Claims.Controllers;
 public class FormulasController : ControllerBase
 {
     /// <summary>
-    /// Computes premium for a date range and cover type (does not persist a cover).
+    /// Computes premium for a date range and cover type.
     /// </summary>
-    [HttpPost("premium")]
+    [HttpPost("cover/premium")]
     [ProducesResponseType(typeof(ComputePremiumResponse), StatusCodes.Status200OK)]
-    [SwaggerResponse(StatusCodes.Status200OK, "Returns the computed premium for the given date range and cover type. Nothing is persisted.", typeof(ComputePremiumResponse))]
+    [SwaggerResponse(StatusCodes.Status200OK, "Returns the computed premium for the given date range and cover type.", typeof(ComputePremiumResponse))]
     public async Task<IActionResult> ComputePremiumAsync(
         [FromBody] ComputePremiumRequest request,
         [FromServices] IUseCase<ComputePremiumCommand, decimal> useCase,

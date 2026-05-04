@@ -6,8 +6,8 @@ namespace Claims.Mapping;
 
 public static class CoverApiMapping
 {
-    public static CreateCoverCommand ToCommand(this CreateCoverRequest request) =>
-        new(request.StartDate, request.EndDate, request.Type);
+    public static CreateCoverCommand ToCommand(this CreateCoverRequest request, string httpMethod) =>
+        new(request.StartDate, request.EndDate, request.Type, httpMethod);
 
     public static CoverResponse ToResponse(this Cover cover) =>
         new()

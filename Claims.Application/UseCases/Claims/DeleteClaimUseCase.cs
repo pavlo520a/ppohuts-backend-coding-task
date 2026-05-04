@@ -11,7 +11,7 @@ public sealed class DeleteClaimUseCase(
 {
     public async Task ExecuteAsync(DeleteClaimCommand command, CancellationToken cancellationToken)
     {
-        await claimAuditTrailRepository.WriteAsync(command.Id, "DELETE", cancellationToken);
+        await claimAuditTrailRepository.WriteAsync(command.Id, command.HttpMethod, cancellationToken);
         await claimRepository.DeleteAsync(command.Id, cancellationToken);
     }
 }

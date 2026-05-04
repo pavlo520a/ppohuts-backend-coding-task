@@ -11,7 +11,7 @@ public sealed class DeleteCoverUseCase(
 {
     public async Task ExecuteAsync(DeleteCoverCommand command, CancellationToken cancellationToken)
     {
-        await coverAuditTrailRepository.WriteAsync(command.Id, "DELETE", cancellationToken);
+        await coverAuditTrailRepository.WriteAsync(command.Id, command.HttpMethod, cancellationToken);
         await coverRepository.DeleteAsync(command.Id, cancellationToken);
     }
 }

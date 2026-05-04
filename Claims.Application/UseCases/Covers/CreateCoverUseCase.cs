@@ -26,7 +26,7 @@ public sealed class CreateCoverUseCase(
         };
 
         await coverRepository.AddAsync(cover, cancellationToken);
-        await coverAuditTrailRepository.WriteAsync(cover.Id, "POST", cancellationToken);
+        await coverAuditTrailRepository.WriteAsync(cover.Id, command.HttpMethod, cancellationToken);
         return cover;
     }
 }

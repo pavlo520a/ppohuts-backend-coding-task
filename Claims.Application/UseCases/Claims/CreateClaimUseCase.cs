@@ -23,7 +23,7 @@ public sealed class CreateClaimUseCase(
         };
 
         await claimRepository.AddAsync(claim, cancellationToken);
-        await claimAuditTrailRepository.WriteAsync(claim.Id, "POST", cancellationToken);
+        await claimAuditTrailRepository.WriteAsync(claim.Id, command.HttpMethod, cancellationToken);
         return claim;
     }
 }

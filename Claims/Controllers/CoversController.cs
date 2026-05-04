@@ -71,7 +71,8 @@ public class CoversController : ControllerBase
         [FromServices] IUseCase<CreateCoverCommand, Cover> useCase,
         CancellationToken cancellationToken)
     {
-        var cover = await useCase.ExecuteAsync(request.ToCommand(), cancellationToken);
+        var httpMethod = HttpContext.Request.Method.ToUpperInvariant();
+        var cover = await useCase.ExecuteAsync(request.ToCommand(httpMethod), cancellationToken);
         var response = cover.ToResponse();
 
         return CreatedAtAction(
@@ -95,7 +96,8 @@ public class CoversController : ControllerBase
         [FromServices] IUseCase<DeleteCoverCommand> useCase,
         CancellationToken cancellationToken)
     {
-        await useCase.ExecuteAsync(new DeleteCoverCommand(id), cancellationToken);
+        var httpMethod = HttpContext.Request.Method.ToUpperInvariant();
+        await useCase.ExecuteAsync(new DeleteCoverCommand(id, httpMethod), cancellationToken);
         return NoContent();
     }
 }

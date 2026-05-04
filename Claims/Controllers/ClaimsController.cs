@@ -71,7 +71,8 @@ public class ClaimsController : ControllerBase
         [FromServices] IUseCase<CreateClaimCommand, Claim> useCase,
         CancellationToken cancellationToken)
     {
-        var claim = await useCase.ExecuteAsync(request.ToCommand(), cancellationToken);
+        var httpMethod = HttpContext.Request.Method.ToUpperInvariant();
+        var claim = await useCase.ExecuteAsync(request.ToCommand(httpMethod), cancellationToken);
         var response = claim.ToResponse();
 
         return CreatedAtAction(
@@ -95,7 +96,8 @@ public class ClaimsController : ControllerBase
         [FromServices] IUseCase<DeleteClaimCommand> useCase,
         CancellationToken cancellationToken)
     {
-        await useCase.ExecuteAsync(new DeleteClaimCommand(id), cancellationToken);
+        var httpMethod = HttpContext.Request.Method.ToUpperInvariant();
+        await useCase.ExecuteAsync(new DeleteClaimCommand(id, httpMethod), cancellationToken);
         return NoContent();
     }
 }
