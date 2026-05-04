@@ -1,0 +1,25 @@
+using Claims.Domain;
+using MongoDB.Bson.Serialization.Attributes;
+
+namespace Claims.Data.Persistence;
+
+public class ClaimDocument
+{
+    [BsonId]
+    public string Id { get; set; } = string.Empty;
+
+    [BsonElement("coverId")]
+    public string CoverId { get; set; } = string.Empty;
+
+    [BsonElement("created")]
+    public DateTime Created { get; set; }
+
+    [BsonElement("name")]
+    public string Name { get; set; } = string.Empty;
+
+    [BsonElement("claimType")]
+    public ClaimType Type { get; set; }
+
+    [BsonElement("damageCost")]
+    public decimal DamageCost { get; set; }
+}

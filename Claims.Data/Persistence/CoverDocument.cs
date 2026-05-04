@@ -1,20 +1,17 @@
+using Claims.Domain;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace Claims;
+namespace Claims.Data.Persistence;
 
-public class Cover
+public class CoverDocument
 {
     [BsonId]
-    public string Id { get; set; }
+    public string Id { get; set; } = string.Empty;
 
     [BsonElement("startDate")]
-    //TODO: investigate and fix
-    //[BsonDateTimeOptions(DateOnly = true)]
     public DateTime StartDate { get; set; }
 
     [BsonElement("endDate")]
-    //TODO: investigate and fix
-    //[BsonDateTimeOptions(DateOnly = true)] 
     public DateTime EndDate { get; set; }
 
     [BsonElement("claimType")]
@@ -22,13 +19,4 @@ public class Cover
 
     [BsonElement("premium")]
     public decimal Premium { get; set; }
-}
-
-public enum CoverType
-{
-    Yacht = 0,
-    PassengerShip = 1,
-    ContainerShip = 2,
-    BulkCarrier = 3,
-    Tanker = 4
 }
