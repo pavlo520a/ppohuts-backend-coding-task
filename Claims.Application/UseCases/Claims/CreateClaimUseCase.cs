@@ -3,15 +3,19 @@ using Claims.Application.Commands.Claims;
 using Claims.Data.Abstractions.Repositories;
 using Claims.Data.Auditing.Abstractions.Repositories;
 using Claims.Domain.Models;
+using FluentValidation;
 
 namespace Claims.Application.UseCases.Claims;
 
 public sealed class CreateClaimUseCase(
     IClaimRepository claimRepository,
-    IClaimAuditTrailRepository claimAuditTrailRepository) : IUseCase<CreateClaimCommand, Claim>
+    IClaimAuditTrailRepository claimAuditTrailRepository,
+    IValidator<CreateClaimCommand> validator) : IUseCase<CreateClaimCommand, Claim>
 {
     public async Task<Claim> ExecuteAsync(CreateClaimCommand command, CancellationToken cancellationToken)
     {
+        await validator.ValidateAndThrowAsync(command, cancellationToken);
+
         var claim = new Claim
         {
             Id = Guid.NewGuid().ToString(),

@@ -71,7 +71,9 @@ public class CoversController : ControllerBase
     /// <param name="cancellationToken">Token used to cancel the request.</param>
     [HttpPost]
     [ProducesResponseType(typeof(CoverResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
     [SwaggerResponse(StatusCodes.Status201Created, "The cover was created with a server-calculated premium. The response body contains the new resource.", typeof(CoverResponse))]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Validation failed for the cover payload.", typeof(ValidationProblemDetails))]
     public async Task<ActionResult<CoverResponse>> CreateAsync(
         [FromBody] CreateCoverRequest request,
         [FromServices] IUseCase<CreateCoverCommand, Cover> useCase,

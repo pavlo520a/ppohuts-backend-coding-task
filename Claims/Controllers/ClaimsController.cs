@@ -71,7 +71,9 @@ public class ClaimsController : ControllerBase
     /// <param name="cancellationToken">Token used to cancel the request.</param>
     [HttpPost]
     [ProducesResponseType(typeof(ClaimResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
     [SwaggerResponse(StatusCodes.Status201Created, "The claim was created. The response body contains the new resource.", typeof(ClaimResponse))]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Validation failed for the claim payload.", typeof(ValidationProblemDetails))]
     public async Task<ActionResult<ClaimResponse>> CreateAsync(
         [FromBody] CreateClaimRequest request,
         [FromServices] IUseCase<CreateClaimCommand, Claim> useCase,

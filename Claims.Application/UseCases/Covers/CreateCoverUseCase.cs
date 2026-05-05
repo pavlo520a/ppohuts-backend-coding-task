@@ -5,16 +5,20 @@ using Claims.Data.Abstractions.Repositories;
 using Claims.Data.Auditing.Abstractions.Repositories;
 using Claims.Domain.Models;
 using Claims.Domain.Models.Formulas;
+using FluentValidation;
 
 namespace Claims.Application.UseCases.Covers;
 
 public sealed class CreateCoverUseCase(
     ICoverRepository coverRepository,
     ICoverAuditTrailRepository coverAuditTrailRepository,
-    IFormula<CoverPremiumFormulaArgs> premiumFormula) : IUseCase<CreateCoverCommand, Cover>
+    IFormula<CoverPremiumFormulaArgs> premiumFormula,
+    IValidator<CreateCoverCommand> validator) : IUseCase<CreateCoverCommand, Cover>
 {
     public async Task<Cover> ExecuteAsync(CreateCoverCommand command, CancellationToken cancellationToken)
     {
+        await validator.ValidateAndThrowAsync(command, cancellationToken);
+
         var formulaArgs = new CoverPremiumFormulaArgs
         {
             StartDate = command.StartDate,

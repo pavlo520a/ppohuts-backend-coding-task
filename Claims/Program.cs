@@ -1,8 +1,10 @@
 using Claims.Application;
+using Claims.Application.Options;
 using Claims.ExceptionHandlers;
 using Claims.Data;
 using Claims.Data.Auditing;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,8 +17,19 @@ builder.Services
     });
 
 builder.Services.AddExceptionHandler<NotFoundExceptionHandler>();
+builder.Services.AddExceptionHandler<ValidationExceptionHandler>();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
+
+builder.Services
+    .AddOptions<ValidationRulesOptions>()
+    .Bind(builder.Configuration.GetSection(ValidationRulesOptions.SectionName))
+    .ValidateDataAnnotations()
+    .Validate(
+        options => options.Claims.MaxDamageCost > 0 &&
+                   options.Covers.MaxInsurancePeriodDays > 0,
+        "Validation rules must contain positive values.")
+    .ValidateOnStart();
 
 builder.Services.AddApplication();
 builder.Services.AddData(builder.Configuration);
