@@ -21,6 +21,6 @@ public sealed class ClaimValidationOptions
 
 public sealed class CoverValidationOptions
 {
-    [Range(1, 3650)]
-    public int MaxInsurancePeriodDays { get; init; } = 365;
+    [Range(1, 10)]
+    public int MaxInsurancePeriodYears { get; init; } = 1;
 }

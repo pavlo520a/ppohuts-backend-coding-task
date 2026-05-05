@@ -20,7 +20,7 @@ public sealed class CreateCoverCommandValidator : AbstractValidator<CreateCoverC
             .WithMessage("EndDate must be greater than or equal to StartDate.");
 
         RuleFor(x => x)
-            .Must(x => (x.EndDate.Date - x.StartDate.Date).TotalDays <= rules.Covers.MaxInsurancePeriodDays)
-            .WithMessage($"The total insurance period cannot exceed {rules.Covers.MaxInsurancePeriodDays} days.");
+            .Must(x => x.EndDate.Date <= x.StartDate.Date.AddYears(rules.Covers.MaxInsurancePeriodYears).AddDays(-1))
+            .WithMessage($"The total insurance period cannot exceed {rules.Covers.MaxInsurancePeriodYears} year(s).");
     }
 }

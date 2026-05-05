@@ -38,7 +38,7 @@ public sealed class ValidationTests
         var command = new CreateCoverCommand
         {
             StartDate = DateTime.UtcNow.Date.AddDays(1),
-            EndDate = DateTime.UtcNow.Date.AddDays(367),
+            EndDate = DateTime.UtcNow.Date.AddDays(1).AddYears(1).AddDays(1),
             Type = CoverType.Yacht,
             HttpMethod = "POST"
         };
@@ -46,7 +46,42 @@ public sealed class ValidationTests
         var result = await validator.ValidateAsync(command, TestContext.Current.CancellationToken);
 
         Assert.False(result.IsValid);
-        Assert.Contains(result.Errors, e => e.ErrorMessage.Contains("cannot exceed 365 days"));
+        Assert.Contains(result.Errors, e => e.ErrorMessage.Contains("cannot exceed 1 year"));
+    }
+
+    [Fact]
+    public async Task CreateCoverValidator_AllowsEndDate_DayBeforeAnniversary()
+    {
+        var validator = new CreateCoverCommandValidator(CreateRulesOptions());
+        var command = new CreateCoverCommand
+        {
+            StartDate = new DateTime(2026, 5, 5),
+            EndDate = new DateTime(2027, 5, 4),
+            Type = CoverType.Yacht,
+            HttpMethod = "POST"
+        };
+
+        var result = await validator.ValidateAsync(command, TestContext.Current.CancellationToken);
+
+        Assert.True(result.IsValid);
+    }
+
+    [Fact]
+    public async Task CreateCoverValidator_ReturnsError_WhenEndDateIsAnniversaryDay()
+    {
+        var validator = new CreateCoverCommandValidator(CreateRulesOptions());
+        var command = new CreateCoverCommand
+        {
+            StartDate = new DateTime(2026, 5, 5),
+            EndDate = new DateTime(2027, 5, 5),
+            Type = CoverType.Yacht,
+            HttpMethod = "POST"
+        };
+
+        var result = await validator.ValidateAsync(command, TestContext.Current.CancellationToken);
+
+        Assert.False(result.IsValid);
+        Assert.Contains(result.Errors, e => e.ErrorMessage.Contains("cannot exceed 1 year"));
     }
 
     [Fact]
@@ -101,7 +136,7 @@ public sealed class ValidationTests
             },
             Covers = new CoverValidationOptions
             {
-                MaxInsurancePeriodDays = 365
+                MaxInsurancePeriodYears = 1
             }
         });
     }
