@@ -1,5 +1,7 @@
 using Claims.Application;
 using Claims.Application.Options;
+using Claims.Data.Auditing.Options;
+using Claims.Data.Options;
 using Claims.ExceptionHandlers;
 using Claims.Data;
 using Claims.Data.Auditing;
@@ -27,9 +29,21 @@ builder.Services
     .ValidateDataAnnotations()
     .ValidateOnStart();
 
+builder.Services
+    .AddOptions<MongoDbOptions>()
+    .Bind(builder.Configuration.GetSection(MongoDbOptions.SectionName))
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
+
+builder.Services
+    .AddOptions<SqlServerOptions>()
+    .Bind(builder.Configuration.GetSection(SqlServerOptions.SectionName))
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
+
 builder.Services.AddApplication();
-builder.Services.AddData(builder.Configuration);
-builder.Services.AddAuditing(builder.Configuration);
+builder.Services.AddData();
+builder.Services.AddAuditing();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
