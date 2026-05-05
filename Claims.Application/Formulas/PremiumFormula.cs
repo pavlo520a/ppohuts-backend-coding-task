@@ -1,7 +1,6 @@
 using Claims.Application.Abstractions.Formulas;
 using Claims.Application.Extensions.Formulas;
 using Claims.Application.Options.Formulas;
-using Claims.Domain.Enums;
 using Claims.Domain.Models.Formulas;
 using Microsoft.Extensions.Options;
 
@@ -24,17 +23,13 @@ public sealed class PremiumFormula(IOptions<PremiumPricingOptions> options) : IF
         var remainingDays = totalDays;
         var totalPremium = 0m;
 
-        foreach (var rule in premiumPricing.DiscountRules.DayRangeDiscountRules)
+        foreach (var rule in premiumPricing.DiscountRules.DayRangeDiscountRules.TakeWhile(_ => remainingDays > 0))
         {
-            if (remainingDays <= 0)
-            {
-                break;
-            }
-
-            var daysForRule = rule.GetDaysForRule(remainingDays);
+            var daysPerRule = rule.GetDaysPerRule(remainingDays);
             var discount = rule.GetDiscount(args.CoverType);
-            totalPremium += daysForRule * dailyPremium * (1m - discount);
-            remainingDays -= daysForRule;
+
+            totalPremium += daysPerRule * dailyPremium * (1m - discount);
+            remainingDays -= daysPerRule;
         }
 
         if (remainingDays > 0)

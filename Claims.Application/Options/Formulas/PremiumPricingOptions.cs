@@ -6,7 +6,6 @@ public sealed class PremiumPricingOptions
 {
     public const string SectionName = "PremiumPricing";
 
-    [Range(0.01, double.MaxValue)]
     public decimal BaseDayRate { get; init; }
 
     [Required]

@@ -4,7 +4,7 @@ namespace Claims.Application.Extensions.Formulas;
 
 public static class DayRangeDiscountRuleExtensions
 {
-    public static int GetDaysForRule(this DayRangeDiscountRuleOptions rule, int remainingDays)
+    public static int GetDaysPerRule(this DayRangeDiscountRuleOptions rule, int remainingDays)
     {
         if (rule.Days.From is not null && rule.Days.To is not null)
         {
