@@ -20,12 +20,12 @@ public static class DependencyInjection
         services.AddScoped<IFormula<CoverPremiumFormulaArgs>, PremiumFormula>();
 
         services.AddScoped<IUseCase<GetClaimsCommand, IReadOnlyList<Claim>>, GetClaimsUseCase>();
-        services.AddScoped<IUseCase<GetClaimByIdCommand, Claim?>, GetClaimByIdUseCase>();
+        services.AddScoped<IUseCase<GetClaimByIdCommand, Claim>, GetClaimByIdUseCase>();
         services.AddScoped<IUseCase<CreateClaimCommand, Claim>, CreateClaimUseCase>();
         services.AddScoped<IUseCase<DeleteClaimCommand>, DeleteClaimUseCase>();
 
         services.AddScoped<IUseCase<GetCoversCommand, IReadOnlyList<Cover>>, GetCoversUseCase>();
-        services.AddScoped<IUseCase<GetCoverByIdCommand, Cover?>, GetCoverByIdUseCase>();
+        services.AddScoped<IUseCase<GetCoverByIdCommand, Cover>, GetCoverByIdUseCase>();
         services.AddScoped<IUseCase<CreateCoverCommand, Cover>, CreateCoverUseCase>();
         services.AddScoped<IUseCase<DeleteCoverCommand>, DeleteCoverUseCase>();
         services.AddScoped<IUseCase<ComputePremiumCommand, decimal>, ComputePremiumUseCase>();

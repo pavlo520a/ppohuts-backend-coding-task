@@ -50,7 +50,7 @@ public class ClaimsController : ControllerBase
     [SwaggerResponse(StatusCodes.Status404NotFound, "No claim exists for the given id.")]
     public async Task<ActionResult<ClaimResponse>> GetByIdAsync(
         [FromRoute] string id,
-        [FromServices] IUseCase<GetClaimByIdCommand, Claim?> useCase,
+        [FromServices] IUseCase<GetClaimByIdCommand, Claim> useCase,
         CancellationToken cancellationToken)
     {
         var command = new GetClaimByIdCommand
@@ -59,11 +59,6 @@ public class ClaimsController : ControllerBase
         };
 
         var claim = await useCase.ExecuteAsync(command, cancellationToken);
-
-        if (claim is null)
-        {
-            return NotFound();
-        }
 
         return Ok(claim.ToResponse());
     }

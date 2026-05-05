@@ -50,7 +50,7 @@ public class CoversController : ControllerBase
     [SwaggerResponse(StatusCodes.Status404NotFound, "No cover exists for the given id.")]
     public async Task<ActionResult<CoverResponse>> GetByIdAsync(
         [FromRoute] string id,
-        [FromServices] IUseCase<GetCoverByIdCommand, Cover?> useCase,
+        [FromServices] IUseCase<GetCoverByIdCommand, Cover> useCase,
         CancellationToken cancellationToken)
     {
         var command = new GetCoverByIdCommand
@@ -59,11 +59,6 @@ public class CoversController : ControllerBase
         };
 
         var cover = await useCase.ExecuteAsync(command, cancellationToken);
-
-        if (cover is null)
-        {
-            return NotFound();
-        }
 
         return Ok(cover.ToResponse());
     }
