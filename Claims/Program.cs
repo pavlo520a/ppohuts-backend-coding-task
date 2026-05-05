@@ -1,4 +1,5 @@
 using Claims.Application;
+using Claims.Application.Options.Formulas;
 using Claims.Application.Options;
 using Claims.Data.Auditing.Options;
 using Claims.Data.Options;
@@ -26,6 +27,12 @@ builder.Services.AddProblemDetails();
 builder.Services
     .AddOptions<ValidationRulesOptions>()
     .Bind(builder.Configuration.GetSection(ValidationRulesOptions.SectionName))
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
+
+builder.Services
+    .AddOptions<PremiumPricingOptions>()
+    .Bind(builder.Configuration.GetSection(PremiumPricingOptions.SectionName))
     .ValidateDataAnnotations()
     .ValidateOnStart();
 

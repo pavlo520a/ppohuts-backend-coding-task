@@ -1,46 +1,68 @@
 using Claims.Application.Abstractions.Formulas;
+using Claims.Application.Options.Formulas;
 using Claims.Domain.Enums;
 using Claims.Domain.Models.Formulas;
+using Microsoft.Extensions.Options;
 
 namespace Claims.Application.Formulas;
 
-public sealed class PremiumFormula : IFormula<CoverPremiumFormulaArgs>
+public sealed class PremiumFormula(IOptions<PremiumPricingOptions> options) : IFormula<CoverPremiumFormulaArgs>
 {
+    private readonly PremiumPricingOptions premiumPricing = options.Value;
+
     public decimal Calculate(CoverPremiumFormulaArgs args)
     {
-        var coverType = args.CoverType;
-        var startDate = args.StartDate;
-        var endDate = args.EndDate;
+        var totalDays = (args.EndDate.Date - args.StartDate.Date).Days + 1;
 
-        var multiplier = 1.3m;
-        if (coverType == CoverType.Yacht)
+        if (totalDays <= 0)
         {
-            multiplier = 1.1m;
+            return 0m;
         }
 
-        if (coverType == CoverType.PassengerShip)
-        {
-            multiplier = 1.2m;
-        }
-
-        if (coverType == CoverType.Tanker)
-        {
-            multiplier = 1.5m;
-        }
-
-        var premiumPerDay = 1250 * multiplier;
-        var insuranceLength = (endDate - startDate).TotalDays;
+        var dailyPremium = premiumPricing.BaseDayRate * GetTypeMultiplier(args.CoverType);
+        var remainingDays = totalDays;
         var totalPremium = 0m;
 
-        for (var i = 0; i < insuranceLength; i++)
+        foreach (var rule in premiumPricing.PricingRules)
         {
-            if (i < 30) totalPremium += premiumPerDay;
-            if (i < 180 && coverType == CoverType.Yacht) totalPremium += premiumPerDay - premiumPerDay * 0.05m;
-            else if (i < 180) totalPremium += premiumPerDay - premiumPerDay * 0.02m;
-            if (i < 365 && coverType != CoverType.Yacht) totalPremium += premiumPerDay - premiumPerDay * 0.03m;
-        };
+            if (remainingDays <= 0)
+            {
+                break;
+            }
+
+            var daysForRule = GetDaysForRule(rule, remainingDays);
+            var discount = args.CoverType == CoverType.Yacht ? rule.YachtDiscount : rule.OtherDiscount;
+            totalPremium += daysForRule * dailyPremium * (1m - discount);
+            remainingDays -= daysForRule;
         }
 
         return totalPremium;
+    }
+
+    private decimal GetTypeMultiplier(CoverType coverType)
+    {
+        return coverType switch
+        {
+            CoverType.Yacht => premiumPricing.TypeMultipliers.Yacht,
+            CoverType.PassengerShip => premiumPricing.TypeMultipliers.PassengerShip,
+            CoverType.Tanker => premiumPricing.TypeMultipliers.Tanker,
+            _ => premiumPricing.TypeMultipliers.Other
+        };
+    }
+
+    private static int GetDaysForRule(PremiumPricingRuleOptions rule, int remainingDays)
+    {
+        if (rule.Days.From is not null && rule.Days.To is not null)
+        {
+            var rangeLength = rule.Days.To.Value - rule.Days.From.Value + 1;
+            return Math.Max(0, Math.Min(remainingDays, rangeLength));
+        }
+
+        if (rule.Days.To is not null)
+        {
+            return Math.Max(0, Math.Min(remainingDays, rule.Days.To.Value));
+        }
+
+        return remainingDays;
     }
 }
