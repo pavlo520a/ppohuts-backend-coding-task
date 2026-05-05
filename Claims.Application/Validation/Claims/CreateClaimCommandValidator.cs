@@ -22,17 +22,22 @@ public sealed class CreateClaimCommandValidator : AbstractValidator<CreateClaimC
             .WithMessage($"DamageCost cannot exceed {rules.Claims.MaxDamageCost}.");
 
         RuleFor(x => x)
-            .MustAsync(async (command, cancellationToken) =>
+            .CustomAsync(async (command, context, cancellationToken) =>
             {
                 var cover = await coverRepository.GetByIdAsync(command.CoverId, cancellationToken);
+                
                 if (cover is null)
                 {
-                    return false;
+                    context.AddFailure(nameof(command.CoverId), "Related cover does not exist.");
+                    return;
                 }
 
                 var createdDate = command.Created.Date;
-                return createdDate >= cover.StartDate.Date && createdDate <= cover.EndDate.Date;
-            })
-            .WithMessage("Created date must be within the period of the related cover and the cover must exist.");
+
+                if (createdDate < cover.StartDate.Date || createdDate > cover.EndDate.Date)
+                {
+                    context.AddFailure(nameof(command.Created), "Created date must be within the period of the related cover.");
+                }
+            });
     }
 }
