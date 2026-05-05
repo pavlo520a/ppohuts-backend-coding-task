@@ -1,99 +1,117 @@
-using Claims.Auditing;
+using Claims.ApiModels.Claims;
+using Claims.Application.Abstractions;
+using Claims.Application.Commands.Claims;
+using Claims.Mapping;
+using Claims.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using MongoDB.EntityFrameworkCore.Extensions;
+using Swashbuckle.AspNetCore.Annotations;
 
+namespace Claims.Controllers;
 
-namespace Claims.Controllers
+/// <summary>
+/// HTTP API for insurance claims.
+/// </summary>
+[ApiController]
+[Route("claims")]
+[Tags("Claims")]
+[ProducesResponseType(StatusCodes.Status500InternalServerError)]
+[SwaggerResponse(StatusCodes.Status500InternalServerError, "An unexpected error occurred.", typeof(ProblemDetails))]
+public class ClaimsController : ControllerBase
 {
-    [ApiController]
-    [Route("[controller]")]
-    public class ClaimsController : ControllerBase
+    /// <summary>
+    /// Returns all claims.
+    /// </summary>
+    /// <param name="useCase">Use case that returns all claims.</param>
+    /// <param name="cancellationToken">Token used to cancel the request.</param>
+    [HttpGet]
+    [ProducesResponseType(typeof(IReadOnlyList<ClaimResponse>), StatusCodes.Status200OK)]
+    [SwaggerResponse(StatusCodes.Status200OK, "Returns all claims.", typeof(IReadOnlyList<ClaimResponse>))]
+    public async Task<ActionResult<IReadOnlyList<ClaimResponse>>> GetAllAsync(
+        [FromServices] IUseCase<GetClaimsCommand, IReadOnlyList<Claim>> useCase,
+        CancellationToken cancellationToken)
     {
-        private readonly ILogger<ClaimsController> _logger;
-        private readonly ClaimsContext _claimsContext;
-        private readonly Auditer _auditer;
+        var command = new GetClaimsCommand();
+        var claims = await useCase.ExecuteAsync(command, cancellationToken);
 
-        public ClaimsController(ILogger<ClaimsController> logger, ClaimsContext claimsContext, AuditContext auditContext)
-        {
-            _logger = logger;
-            _claimsContext = claimsContext;
-            _auditer = new Auditer(auditContext);
-        }
-
-        [HttpGet]
-        public async Task<IEnumerable<Claim>> GetAsync()
-        {
-            return await _claimsContext.GetClaimsAsync();
-        }
-
-        [HttpPost]
-        public async Task<ActionResult> CreateAsync(Claim claim)
-        {
-            claim.Id = Guid.NewGuid().ToString();
-            await _claimsContext.AddItemAsync(claim);
-            _auditer.AuditClaim(claim.Id, "POST");
-            return Ok(claim);
-        }
-
-        [HttpDelete("{id}")]
-        public async Task DeleteAsync(string id)
-        {
-            _auditer.AuditClaim(id, "DELETE");
-            await _claimsContext.DeleteItemAsync(id);
-        }
-
-        [HttpGet("{id}")]
-        public async Task<Claim> GetAsync(string id)
-        {
-            return await _claimsContext.GetClaimAsync(id);
-        }
+        return Ok(claims.ToResponse());
     }
 
-    public class ClaimsContext : DbContext
+    /// <summary>
+    /// Returns a single claim by identifier.
+    /// </summary>
+    /// <param name="id">Claim identifier.</param>
+    /// <param name="useCase">Use case that returns a claim by identifier.</param>
+    /// <param name="cancellationToken">Token used to cancel the request.</param>
+    [HttpGet("{id}")]
+    [ActionName("GetByIdAsync")]
+    [ProducesResponseType(typeof(ClaimResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [SwaggerResponse(StatusCodes.Status200OK, "Returns the claim with the given id.", typeof(ClaimResponse))]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "No claim exists for the given id.")]
+    public async Task<ActionResult<ClaimResponse>> GetByIdAsync(
+        [FromRoute] string id,
+        [FromServices] IUseCase<GetClaimByIdCommand, Claim> useCase,
+        CancellationToken cancellationToken)
     {
-
-        private DbSet<Claim> Claims { get; init; }
-        public DbSet<Cover>  Covers { get; init; }
-
-        public ClaimsContext(DbContextOptions options)
-            : base(options)
+        var command = new GetClaimByIdCommand
         {
-        }
+            Id = id
+        };
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            base.OnModelCreating(modelBuilder);
-            modelBuilder.Entity<Claim>().ToCollection("claims");
-            modelBuilder.Entity<Cover>().ToCollection("covers");
-        }
+        var claim = await useCase.ExecuteAsync(command, cancellationToken);
 
-        public async Task<IEnumerable<Claim>> GetClaimsAsync()
-        {
-            return await Claims.ToListAsync();
-        }
+        return Ok(claim.ToResponse());
+    }
 
-        public async Task<Claim> GetClaimAsync(string id)
-        {
-            return await Claims
-                .Where(claim => claim.Id == id)
-                .SingleOrDefaultAsync();
-        }
+    /// <summary>
+    /// Creates a new claim.
+    /// </summary>
+    /// <param name="request">Claim payload used to create a new claim.</param>
+    /// <param name="useCase">Use case that creates a claim.</param>
+    /// <param name="cancellationToken">Token used to cancel the request.</param>
+    [HttpPost]
+    [ProducesResponseType(typeof(ClaimResponse), StatusCodes.Status201Created)]
+    [SwaggerResponse(StatusCodes.Status201Created, "The claim was created. The response body contains the new resource.", typeof(ClaimResponse))]
+    public async Task<ActionResult<ClaimResponse>> CreateAsync(
+        [FromBody] CreateClaimRequest request,
+        [FromServices] IUseCase<CreateClaimCommand, Claim> useCase,
+        CancellationToken cancellationToken)
+    {
+        var httpMethod = HttpContext.Request.Method.ToUpperInvariant();
+        var claim = await useCase.ExecuteAsync(
+            request.ToCommand(httpMethod),
+            cancellationToken);
 
-        public async Task AddItemAsync(Claim item)
-        {
-            Claims.Add(item);
-            await SaveChangesAsync();
-        }
+        var response = claim.ToResponse();
 
-        public async Task DeleteItemAsync(string id)
+        return CreatedAtAction(
+            nameof(GetByIdAsync),
+            new { id = response.Id },
+            response);
+    }
+
+    /// <summary>
+    /// Deletes a claim by identifier.
+    /// </summary>
+    /// <param name="id">Claim identifier.</param>
+    /// <param name="useCase">Use case that deletes a claim.</param>
+    /// <param name="cancellationToken">Token used to cancel the request.</param>
+    [HttpDelete("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [SwaggerResponse(StatusCodes.Status204NoContent, "The claim was deleted successfully.")]
+    public async Task<IActionResult> DeleteAsync(
+        [FromRoute] string id,
+        [FromServices] IUseCase<DeleteClaimCommand> useCase,
+        CancellationToken cancellationToken)
+    {
+        var httpMethod = HttpContext.Request.Method.ToUpperInvariant();
+        var command = new DeleteClaimCommand
         {
-            var claim = await GetClaimAsync(id);
-            if (claim is not null)
-            {
-                Claims.Remove(claim);
-                await SaveChangesAsync();
-            }
-        }
+            Id = id,
+            HttpMethod = httpMethod
+        };
+
+        await useCase.ExecuteAsync(command,cancellationToken);
+        return NoContent();
     }
 }

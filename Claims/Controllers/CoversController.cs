@@ -1,98 +1,114 @@
-using Claims.Auditing;
+using Claims.ApiModels.Covers;
+using Claims.Application.Abstractions;
+using Claims.Application.Commands.Covers;
+using Claims.Domain.Models;
+using Claims.Mapping;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace Claims.Controllers;
 
+/// <summary>
+/// HTTP API for covers.
+/// </summary>
 [ApiController]
-[Route("[controller]")]
+[Route("covers")]
+[Tags("Covers")]
+[ProducesResponseType(StatusCodes.Status500InternalServerError)]
+[SwaggerResponse(StatusCodes.Status500InternalServerError, "An unexpected error occurred.", typeof(ProblemDetails))]
 public class CoversController : ControllerBase
 {
-    private readonly ClaimsContext _claimsContext;
-    private readonly ILogger<CoversController> _logger;
-    private readonly Auditer _auditer;
-
-    public CoversController(ClaimsContext claimsContext, AuditContext auditContext, ILogger<CoversController> logger)
-    {
-        _claimsContext = claimsContext;
-        _logger = logger;
-        _auditer = new Auditer(auditContext);
-    }
-
-    [HttpPost("compute")]
-    public async Task<ActionResult> ComputePremiumAsync(DateTime startDate, DateTime endDate, CoverType coverType)
-    {
-        return Ok(ComputePremium(startDate, endDate, coverType));
-    }
-
+    /// <summary>
+    /// Returns all covers.
+    /// </summary>
+    /// <param name="useCase">Use case that returns all covers.</param>
+    /// <param name="cancellationToken">Token used to cancel the request.</param>
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Cover>>> GetAsync()
+    [ProducesResponseType(typeof(IReadOnlyList<CoverResponse>), StatusCodes.Status200OK)]
+    [SwaggerResponse(StatusCodes.Status200OK, "Returns all covers.", typeof(IReadOnlyList<CoverResponse>))]
+    public async Task<ActionResult<IReadOnlyList<CoverResponse>>> GetAllAsync(
+        [FromServices] IUseCase<GetCoversCommand, IReadOnlyList<Cover>> useCase,
+        CancellationToken cancellationToken)
     {
-        var results = await _claimsContext.Covers.ToListAsync();
-        return Ok(results);
+        var command = new GetCoversCommand();
+        var covers = await useCase.ExecuteAsync(command, cancellationToken);
+
+        return Ok(covers.ToResponse());
     }
 
+    /// <summary>
+    /// Returns a single cover by identifier.
+    /// </summary>
+    /// <param name="id">Cover identifier.</param>
+    /// <param name="useCase">Use case that returns a cover by identifier.</param>
+    /// <param name="cancellationToken">Token used to cancel the request.</param>
     [HttpGet("{id}")]
-    public async Task<ActionResult<Cover>> GetAsync(string id)
+    [ActionName("GetByIdAsync")]
+    [ProducesResponseType(typeof(CoverResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [SwaggerResponse(StatusCodes.Status200OK, "Returns the cover with the given id.", typeof(CoverResponse))]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "No cover exists for the given id.")]
+    public async Task<ActionResult<CoverResponse>> GetByIdAsync(
+        [FromRoute] string id,
+        [FromServices] IUseCase<GetCoverByIdCommand, Cover> useCase,
+        CancellationToken cancellationToken)
     {
-        var results = await _claimsContext.Covers.ToListAsync();
-        return Ok(results.SingleOrDefault(cover => cover.Id == id));
+        var command = new GetCoverByIdCommand
+        {
+            Id = id
+        };
+
+        var cover = await useCase.ExecuteAsync(command, cancellationToken);
+
+        return Ok(cover.ToResponse());
     }
 
+    /// <summary>
+    /// Creates a new cover with a server-calculated premium.
+    /// </summary>
+    /// <param name="request">Cover payload used to create a new cover.</param>
+    /// <param name="useCase">Use case that creates a cover.</param>
+    /// <param name="cancellationToken">Token used to cancel the request.</param>
     [HttpPost]
-    public async Task<ActionResult> CreateAsync(Cover cover)
+    [ProducesResponseType(typeof(CoverResponse), StatusCodes.Status201Created)]
+    [SwaggerResponse(StatusCodes.Status201Created, "The cover was created with a server-calculated premium. The response body contains the new resource.", typeof(CoverResponse))]
+    public async Task<ActionResult<CoverResponse>> CreateAsync(
+        [FromBody] CreateCoverRequest request,
+        [FromServices] IUseCase<CreateCoverCommand, Cover> useCase,
+        CancellationToken cancellationToken)
     {
-        cover.Id = Guid.NewGuid().ToString();
-        cover.Premium = ComputePremium(cover.StartDate, cover.EndDate, cover.Type);
-        _claimsContext.Covers.Add(cover);
-        await _claimsContext.SaveChangesAsync();
-        _auditer.AuditCover(cover.Id, "POST");
-        return Ok(cover);
+        var httpMethod = HttpContext.Request.Method.ToUpperInvariant();
+        var cover = await useCase.ExecuteAsync(request.ToCommand(httpMethod), cancellationToken);
+        var response = cover.ToResponse();
+
+        return CreatedAtAction(
+            nameof(GetByIdAsync),
+            new { id = response.Id },
+            response);
     }
 
+    /// <summary>
+    /// Deletes a cover by identifier.
+    /// </summary>
+    /// <param name="id">Cover identifier.</param>
+    /// <param name="useCase">Use case that deletes a cover.</param>
+    /// <param name="cancellationToken">Token used to cancel the request.</param>
     [HttpDelete("{id}")]
-    public async Task DeleteAsync(string id)
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [SwaggerResponse(StatusCodes.Status204NoContent, "The cover was deleted successfully.")]
+    public async Task<IActionResult> DeleteAsync(
+        [FromRoute] string id,
+        [FromServices] IUseCase<DeleteCoverCommand> useCase,
+        CancellationToken cancellationToken)
     {
-        _auditer.AuditCover(id, "DELETE");
-        var cover = await _claimsContext.Covers.Where(cover => cover.Id == id).SingleOrDefaultAsync();
-        if (cover is not null)
+        var httpMethod = HttpContext.Request.Method.ToUpperInvariant();
+        var command = new DeleteCoverCommand
         {
-            _claimsContext.Covers.Remove(cover);
-            await _claimsContext.SaveChangesAsync();
-        }
-    }
+            Id = id,
+            HttpMethod = httpMethod
+        };
 
-    private decimal ComputePremium(DateTime startDate, DateTime endDate, CoverType coverType)
-    {
-        var multiplier = 1.3m;
-        if (coverType == CoverType.Yacht)
-        {
-            multiplier = 1.1m;
-        }
-
-        if (coverType == CoverType.PassengerShip)
-        {
-            multiplier = 1.2m;
-        }
-
-        if (coverType == CoverType.Tanker)
-        {
-            multiplier = 1.5m;
-        }
-
-        var premiumPerDay = 1250 * multiplier;
-        var insuranceLength = (endDate - startDate).TotalDays;
-        var totalPremium = 0m;
-
-        for (var i = 0; i < insuranceLength; i++)
-        {
-            if (i < 30) totalPremium += premiumPerDay;
-            if (i < 180 && coverType == CoverType.Yacht) totalPremium += premiumPerDay - premiumPerDay * 0.05m;
-            else if (i < 180) totalPremium += premiumPerDay - premiumPerDay * 0.02m;
-            if (i < 365 && coverType != CoverType.Yacht) totalPremium += premiumPerDay - premiumPerDay * 0.03m;
-            else if (i < 365) totalPremium += premiumPerDay - premiumPerDay * 0.08m;
-        }
-
-        return totalPremium;
+        await useCase.ExecuteAsync(command, cancellationToken);
+        return NoContent();
     }
 }
