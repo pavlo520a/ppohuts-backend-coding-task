@@ -21,6 +21,8 @@ public class ClaimsController : ControllerBase
     /// <summary>
     /// Returns all claims.
     /// </summary>
+    /// <param name="useCase">Use case that returns all claims.</param>
+    /// <param name="cancellationToken">Token used to cancel the request.</param>
     [HttpGet]
     [ProducesResponseType(typeof(IReadOnlyList<ClaimResponse>), StatusCodes.Status200OK)]
     [SwaggerResponse(StatusCodes.Status200OK, "Returns all claims.", typeof(IReadOnlyList<ClaimResponse>))]
@@ -38,6 +40,8 @@ public class ClaimsController : ControllerBase
     /// Returns a single claim by identifier.
     /// </summary>
     /// <param name="id">Claim identifier.</param>
+    /// <param name="useCase">Use case that returns a claim by identifier.</param>
+    /// <param name="cancellationToken">Token used to cancel the request.</param>
     [HttpGet("{id}")]
     [ActionName("GetByIdAsync")]
     [ProducesResponseType(typeof(ClaimResponse), StatusCodes.Status200OK)]
@@ -67,6 +71,9 @@ public class ClaimsController : ControllerBase
     /// <summary>
     /// Creates a new claim.
     /// </summary>
+    /// <param name="request">Claim payload used to create a new claim.</param>
+    /// <param name="useCase">Use case that creates a claim.</param>
+    /// <param name="cancellationToken">Token used to cancel the request.</param>
     [HttpPost]
     [ProducesResponseType(typeof(ClaimResponse), StatusCodes.Status201Created)]
     [SwaggerResponse(StatusCodes.Status201Created, "The claim was created. The response body contains the new resource.", typeof(ClaimResponse))]
@@ -92,6 +99,8 @@ public class ClaimsController : ControllerBase
     /// Deletes a claim by identifier.
     /// </summary>
     /// <param name="id">Claim identifier.</param>
+    /// <param name="useCase">Use case that deletes a claim.</param>
+    /// <param name="cancellationToken">Token used to cancel the request.</param>
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [SwaggerResponse(StatusCodes.Status204NoContent, "The claim was deleted successfully.")]

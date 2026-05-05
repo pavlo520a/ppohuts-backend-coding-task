@@ -20,6 +20,9 @@ public class FormulasController : ControllerBase
     /// <summary>
     /// Computes premium for a date range and cover type.
     /// </summary>
+    /// <param name="request">Premium calculation payload.</param>
+    /// <param name="useCase">Use case that computes premium.</param>
+    /// <param name="cancellationToken">Token used to cancel the request.</param>
     [HttpPost("cover/premium")]
     [ProducesResponseType(typeof(ComputePremiumResponse), StatusCodes.Status200OK)]
     [SwaggerResponse(StatusCodes.Status200OK, "Returns the computed premium for the given date range and cover type.", typeof(ComputePremiumResponse))]

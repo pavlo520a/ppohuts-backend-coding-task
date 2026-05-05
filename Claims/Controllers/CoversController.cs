@@ -21,6 +21,8 @@ public class CoversController : ControllerBase
     /// <summary>
     /// Returns all covers.
     /// </summary>
+    /// <param name="useCase">Use case that returns all covers.</param>
+    /// <param name="cancellationToken">Token used to cancel the request.</param>
     [HttpGet]
     [ProducesResponseType(typeof(IReadOnlyList<CoverResponse>), StatusCodes.Status200OK)]
     [SwaggerResponse(StatusCodes.Status200OK, "Returns all covers.", typeof(IReadOnlyList<CoverResponse>))]
@@ -38,6 +40,8 @@ public class CoversController : ControllerBase
     /// Returns a single cover by identifier.
     /// </summary>
     /// <param name="id">Cover identifier.</param>
+    /// <param name="useCase">Use case that returns a cover by identifier.</param>
+    /// <param name="cancellationToken">Token used to cancel the request.</param>
     [HttpGet("{id}")]
     [ActionName("GetByIdAsync")]
     [ProducesResponseType(typeof(CoverResponse), StatusCodes.Status200OK)]
@@ -67,6 +71,9 @@ public class CoversController : ControllerBase
     /// <summary>
     /// Creates a new cover with a server-calculated premium.
     /// </summary>
+    /// <param name="request">Cover payload used to create a new cover.</param>
+    /// <param name="useCase">Use case that creates a cover.</param>
+    /// <param name="cancellationToken">Token used to cancel the request.</param>
     [HttpPost]
     [ProducesResponseType(typeof(CoverResponse), StatusCodes.Status201Created)]
     [SwaggerResponse(StatusCodes.Status201Created, "The cover was created with a server-calculated premium. The response body contains the new resource.", typeof(CoverResponse))]
@@ -89,6 +96,8 @@ public class CoversController : ControllerBase
     /// Deletes a cover by identifier.
     /// </summary>
     /// <param name="id">Cover identifier.</param>
+    /// <param name="useCase">Use case that deletes a cover.</param>
+    /// <param name="cancellationToken">Token used to cancel the request.</param>
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [SwaggerResponse(StatusCodes.Status204NoContent, "The cover was deleted successfully.")]
