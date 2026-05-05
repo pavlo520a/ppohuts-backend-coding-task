@@ -12,7 +12,7 @@ public sealed class CreateCoverCommandValidator : AbstractValidator<CreateCoverC
         var rules = options.Value;
 
         RuleFor(x => x.StartDate)
-            .Must(date => date.Date >= DateTime.UtcNow.Date)
+            .Must(date => date.ToUniversalTime().Date >= DateTime.UtcNow.Date)
             .WithMessage("StartDate cannot be in the past.");
 
         RuleFor(x => x)
