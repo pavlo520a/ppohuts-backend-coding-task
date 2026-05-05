@@ -1,8 +1,12 @@
 using Claims.Application;
+using Claims.Application.Options;
+using Claims.Data.Auditing.Options;
+using Claims.Data.Options;
 using Claims.ExceptionHandlers;
 using Claims.Data;
 using Claims.Data.Auditing;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,12 +19,31 @@ builder.Services
     });
 
 builder.Services.AddExceptionHandler<NotFoundExceptionHandler>();
+builder.Services.AddExceptionHandler<ValidationExceptionHandler>();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 
+builder.Services
+    .AddOptions<ValidationRulesOptions>()
+    .Bind(builder.Configuration.GetSection(ValidationRulesOptions.SectionName))
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
+
+builder.Services
+    .AddOptions<MongoDbOptions>()
+    .Bind(builder.Configuration.GetSection(MongoDbOptions.SectionName))
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
+
+builder.Services
+    .AddOptions<SqlServerOptions>()
+    .Bind(builder.Configuration.GetSection(SqlServerOptions.SectionName))
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
+
 builder.Services.AddApplication();
-builder.Services.AddData(builder.Configuration);
-builder.Services.AddAuditing(builder.Configuration);
+builder.Services.AddData();
+builder.Services.AddAuditing();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>

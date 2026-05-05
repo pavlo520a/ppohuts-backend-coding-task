@@ -1,27 +1,22 @@
 using Claims.Data.Abstractions.Repositories;
+using Claims.Data.Options;
 using Claims.Data.Repositories;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 
 namespace Claims.Data;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddData(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddData(this IServiceCollection services)
     {
-        var mongoConnectionString = configuration["MongoDb:ConnectionString"]
-            ?? throw new InvalidOperationException(
-                "MongoDb:ConnectionString is not configured. Set MongoDb:ConnectionString in appsettings, environment variables, or user secrets.");
-        var mongoDatabaseName = configuration["MongoDb:DatabaseName"]
-            ?? throw new InvalidOperationException(
-                "MongoDb:DatabaseName is not configured.");
-
-        services.AddDbContext<ClaimsMongoDbContext>(options =>
+        services.AddDbContext<ClaimsMongoDbContext>((serviceProvider, options) =>
         {
-            var client = new MongoClient(mongoConnectionString);
-            var database = client.GetDatabase(mongoDatabaseName);
+            var mongoOptions = serviceProvider.GetRequiredService<IOptions<MongoDbOptions>>().Value;
+            var client = new MongoClient(mongoOptions.ConnectionString);
+            var database = client.GetDatabase(mongoOptions.DatabaseName);
             options.UseMongoDB(database.Client, database.DatabaseNamespace.DatabaseName);
         });
 

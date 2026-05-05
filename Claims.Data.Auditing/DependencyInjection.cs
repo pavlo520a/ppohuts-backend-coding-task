@@ -1,21 +1,21 @@
 using Claims.Data.Auditing.Abstractions.Repositories;
+using Claims.Data.Auditing.Options;
 using Claims.Data.Auditing.Repositories;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace Claims.Data.Auditing;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddAuditing(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddAuditing(this IServiceCollection services)
     {
-        var sqlConnectionString = configuration.GetConnectionString("SqlServer")
-            ?? throw new InvalidOperationException(
-                "Connection string 'SqlServer' is not configured. Set ConnectionStrings:SqlServer in appsettings, environment variables, or user secrets.");
-
-        services.AddDbContext<AuditContext>(options =>
-            options.UseSqlServer(sqlConnectionString));
+        services.AddDbContext<AuditContext>((serviceProvider, options) =>
+        {
+            var sqlServerOptions = serviceProvider.GetRequiredService<IOptions<SqlServerOptions>>().Value;
+            options.UseSqlServer(sqlServerOptions.ConnectionString);
+        });
 
         services.AddScoped<IClaimAuditTrailRepository, ClaimAuditTrailRepository>();
         services.AddScoped<ICoverAuditTrailRepository, CoverAuditTrailRepository>();

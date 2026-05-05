@@ -8,7 +8,9 @@ using Claims.Application.Formulas;
 using Claims.Application.UseCases.Claims;
 using Claims.Application.UseCases.Covers;
 using Claims.Application.UseCases.Formulas;
+using Claims.Application.Validation.Claims;
 using Claims.Domain.Models;
+using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Claims.Application;
@@ -17,6 +19,8 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
+        services.AddValidatorsFromAssemblyContaining<CreateClaimCommandValidator>();
+
         services.AddScoped<IFormula<CoverPremiumFormulaArgs>, PremiumFormula>();
 
         services.AddScoped<IUseCase<GetClaimsCommand, IReadOnlyList<Claim>>, GetClaimsUseCase>();
