@@ -39,7 +39,6 @@ public sealed class PremiumFormula(IOptions<PremiumPricingOptions> options) : IF
 
         if (remainingDays > 0)
         {
-            // Remaining is the default rule and applies even when DayRangeDiscountRules is empty.
             var remainingDiscount = premiumPricing.DiscountRules.Remaining.GetDiscount(args.CoverType);
             totalPremium += remainingDays * dailyPremium * (1m - remainingDiscount);
         }
