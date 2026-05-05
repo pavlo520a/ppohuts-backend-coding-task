@@ -53,10 +53,11 @@ public sealed class ValidationTests
     public async Task CreateCoverValidator_AllowsEndDate_DayBeforeAnniversary()
     {
         var validator = new CreateCoverCommandValidator(CreateRulesOptions());
+        var startDate = DateTime.UtcNow.AddDays(2);
         var command = new CreateCoverCommand
         {
-            StartDate = new DateTime(2026, 5, 5),
-            EndDate = new DateTime(2027, 5, 4),
+            StartDate = startDate,
+            EndDate = startDate.AddYears(1).AddDays(-1),
             Type = CoverType.Yacht,
             HttpMethod = "POST"
         };
@@ -70,10 +71,11 @@ public sealed class ValidationTests
     public async Task CreateCoverValidator_ReturnsError_WhenEndDateIsAnniversaryDay()
     {
         var validator = new CreateCoverCommandValidator(CreateRulesOptions());
+        var startDate = DateTime.UtcNow.AddDays(2);
         var command = new CreateCoverCommand
         {
-            StartDate = new DateTime(2026, 5, 5),
-            EndDate = new DateTime(2027, 5, 5),
+            StartDate = startDate,
+            EndDate = startDate.AddYears(1),
             Type = CoverType.Yacht,
             HttpMethod = "POST"
         };

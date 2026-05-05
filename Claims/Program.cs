@@ -25,10 +25,6 @@ builder.Services
     .AddOptions<ValidationRulesOptions>()
     .Bind(builder.Configuration.GetSection(ValidationRulesOptions.SectionName))
     .ValidateDataAnnotations()
-    .Validate(
-        options => options.Claims.MaxDamageCost > 0 &&
-                   options.Covers.MaxInsurancePeriodYears > 0,
-        "Validation rules must contain positive values.")
     .ValidateOnStart();
 
 builder.Services.AddApplication();

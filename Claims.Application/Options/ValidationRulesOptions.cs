@@ -12,15 +12,3 @@ public sealed class ValidationRulesOptions
     [Required]
     public CoverValidationOptions Covers { get; init; } = new();
 }
-
-public sealed class ClaimValidationOptions
-{
-    [Range(typeof(decimal), "0", "1000000000")]
-    public decimal MaxDamageCost { get; init; } = 100000m;
-}
-
-public sealed class CoverValidationOptions
-{
-    [Range(1, 10)]
-    public int MaxInsurancePeriodYears { get; init; } = 1;
-}
