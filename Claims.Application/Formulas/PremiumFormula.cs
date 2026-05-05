@@ -1,4 +1,5 @@
 using Claims.Application.Abstractions.Formulas;
+using Claims.Application.Extensions.Formulas;
 using Claims.Application.Options.Formulas;
 using Claims.Domain.Enums;
 using Claims.Domain.Models.Formulas;
@@ -19,50 +20,30 @@ public sealed class PremiumFormula(IOptions<PremiumPricingOptions> options) : IF
             return 0m;
         }
 
-        var dailyPremium = premiumPricing.BaseDayRate * GetTypeMultiplier(args.CoverType);
+        var dailyPremium = premiumPricing.BaseDayRate * premiumPricing.TypeMultipliers.GetTypeMultiplier(args.CoverType);
         var remainingDays = totalDays;
         var totalPremium = 0m;
 
-        foreach (var rule in premiumPricing.PricingRules)
+        foreach (var rule in premiumPricing.DiscountRules.DayRangeDiscountRules)
         {
             if (remainingDays <= 0)
             {
                 break;
             }
 
-            var daysForRule = GetDaysForRule(rule, remainingDays);
-            var discount = args.CoverType == CoverType.Yacht ? rule.YachtDiscount : rule.OtherDiscount;
+            var daysForRule = rule.GetDaysForRule(remainingDays);
+            var discount = rule.GetDiscount(args.CoverType);
             totalPremium += daysForRule * dailyPremium * (1m - discount);
             remainingDays -= daysForRule;
         }
 
+        if (remainingDays > 0)
+        {
+            // Remaining is the default rule and applies even when DayRangeDiscountRules is empty.
+            var remainingDiscount = premiumPricing.DiscountRules.Remaining.GetDiscount(args.CoverType);
+            totalPremium += remainingDays * dailyPremium * (1m - remainingDiscount);
+        }
+
         return totalPremium;
-    }
-
-    private decimal GetTypeMultiplier(CoverType coverType)
-    {
-        return coverType switch
-        {
-            CoverType.Yacht => premiumPricing.TypeMultipliers.Yacht,
-            CoverType.PassengerShip => premiumPricing.TypeMultipliers.PassengerShip,
-            CoverType.Tanker => premiumPricing.TypeMultipliers.Tanker,
-            _ => premiumPricing.TypeMultipliers.Other
-        };
-    }
-
-    private static int GetDaysForRule(PremiumPricingRuleOptions rule, int remainingDays)
-    {
-        if (rule.Days.From is not null && rule.Days.To is not null)
-        {
-            var rangeLength = rule.Days.To.Value - rule.Days.From.Value + 1;
-            return Math.Max(0, Math.Min(remainingDays, rangeLength));
-        }
-
-        if (rule.Days.To is not null)
-        {
-            return Math.Max(0, Math.Min(remainingDays, rule.Days.To.Value));
-        }
-
-        return remainingDays;
     }
 }

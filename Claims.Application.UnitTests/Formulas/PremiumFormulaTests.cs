@@ -71,6 +71,36 @@ public sealed class PremiumFormulaTests
         Assert.Equal(0m, premium);
     }
 
+    [Fact]
+    public void Calculate_UsesRemainingRule_WhenDayRangeDiscountRulesAreEmpty()
+    {
+        var options = Microsoft.Extensions.Options.Options.Create(new PremiumPricingOptions
+        {
+            BaseDayRate = 1250m,
+            TypeMultipliers = new PremiumTypeMultipliersOptions
+            {
+                Yacht = 1.1m,
+                PassengerShip = 1.2m,
+                Tanker = 1.5m,
+                Other = 1.3m
+            },
+            DiscountRules = new PremiumPricingDiscountRulesOptions
+            {
+                DayRangeDiscountRules = [],
+                Remaining = new DiscountRuleOptions
+                {
+                    YachtDiscount = 0.08m,
+                    OtherDiscount = 0.03m
+                }
+            }
+        });
+        var localFormula = new PremiumFormula(options);
+
+        var premium = localFormula.Calculate(CreateArgs(CoverType.Yacht, StartDate, StartDate.AddDays(29)));
+
+        Assert.Equal(37950m, premium);
+    }
+
     private static CoverPremiumFormulaArgs CreateArgs(CoverType coverType, DateTime startDate, DateTime endDate)
     {
         return new CoverPremiumFormulaArgs
@@ -93,35 +123,37 @@ public sealed class PremiumFormulaTests
                 Tanker = 1.5m,
                 Other = 1.3m
             },
-            PricingRules =
-            [
-                new PremiumPricingRuleOptions
-                {
-                    Days = new PremiumPricingDaysRangeOptions
+            DiscountRules = new PremiumPricingDiscountRulesOptions
+            {
+                DayRangeDiscountRules =
+                [
+                    new DayRangeDiscountRuleOptions
                     {
-                        From = 1,
-                        To = 30
+                        Days = new DayRangeOptions
+                        {
+                            From = 1,
+                            To = 30
+                        },
+                        YachtDiscount = 0m,
+                        OtherDiscount = 0m
                     },
-                    YachtDiscount = 0m,
-                    OtherDiscount = 0m
-                },
-                new PremiumPricingRuleOptions
-                {
-                    Days = new PremiumPricingDaysRangeOptions
+                    new DayRangeDiscountRuleOptions
                     {
-                        From = 31,
-                        To = 180
-                    },
-                    YachtDiscount = 0.05m,
-                    OtherDiscount = 0.02m
-                },
-                new PremiumPricingRuleOptions
+                        Days = new DayRangeOptions
+                        {
+                            From = 31,
+                            To = 180
+                        },
+                        YachtDiscount = 0.05m,
+                        OtherDiscount = 0.02m
+                    }
+                ],
+                Remaining = new DiscountRuleOptions
                 {
-                    Days = new PremiumPricingDaysRangeOptions(),
                     YachtDiscount = 0.08m,
                     OtherDiscount = 0.03m
                 }
-            ]
+            }
         });
     }
 }

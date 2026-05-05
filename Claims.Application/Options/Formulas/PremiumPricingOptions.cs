@@ -13,6 +13,5 @@ public sealed class PremiumPricingOptions
     public PremiumTypeMultipliersOptions TypeMultipliers { get; init; } = new();
 
     [Required]
-    [MinLength(1)]
-    public List<PremiumPricingRuleOptions> PricingRules { get; init; } = [];
+    public PremiumPricingDiscountRulesOptions DiscountRules { get; init; } = new();
 }
