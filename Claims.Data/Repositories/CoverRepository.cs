@@ -1,4 +1,5 @@
 using Claims.Data.Abstractions.Repositories;
+using Claims.Data.Extensions;
 using Claims.Data.Mapping;
 using Claims.Domain.Models;
 using Microsoft.EntityFrameworkCore;
@@ -22,13 +23,17 @@ public sealed class CoverRepository(ClaimsMongoDbContext context) : ICoverReposi
         return entity?.ToDomain();
     }
 
-    public async Task AddAsync(Cover cover, CancellationToken cancellationToken)
+    public async Task AddAsync(Cover cover, string httpMethod, CancellationToken cancellationToken)
     {
-        context.Covers.Add(cover.ToDocument());
+        var document = cover.ToDocument();
+
+        context.Covers.Add(document);
+        context.OutboxMessages.Add(document.ToOutboxMessage(httpMethod));
+
         await context.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task DeleteAsync(string id, CancellationToken cancellationToken)
+    public async Task DeleteAsync(string id, string httpMethod, CancellationToken cancellationToken)
     {
         var entity = await context.Covers
             .Where(c => c.Id == id)
@@ -37,6 +42,8 @@ public sealed class CoverRepository(ClaimsMongoDbContext context) : ICoverReposi
         if (entity is not null)
         {
             context.Covers.Remove(entity);
+            context.OutboxMessages.Add(entity.ToOutboxMessage(httpMethod));
+
             await context.SaveChangesAsync(cancellationToken);
         }
     }

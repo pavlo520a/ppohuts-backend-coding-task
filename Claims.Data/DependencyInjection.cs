@@ -1,3 +1,4 @@
+using Claims.Data.Abstractions.Outbox;
 using Claims.Data.Abstractions.Repositories;
 using Claims.Data.Options;
 using Claims.Data.Repositories;
@@ -22,6 +23,13 @@ public static class DependencyInjection
 
         services.AddScoped<IClaimRepository, ClaimRepository>();
         services.AddScoped<ICoverRepository, CoverRepository>();
+        services.AddScoped<IOutboxRepository, OutboxRepository>();
+
+        services
+            .AddOptions<MongoDbOptions>()
+            .BindConfiguration(MongoDbOptions.SectionName)
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
 
         return services;
     }

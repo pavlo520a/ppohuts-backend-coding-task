@@ -1,4 +1,5 @@
 using Claims.Data.Abstractions.Repositories;
+using Claims.Data.Extensions;
 using Claims.Data.Mapping;
 using Claims.Domain.Models;
 using Microsoft.EntityFrameworkCore;
@@ -22,13 +23,17 @@ public sealed class ClaimRepository(ClaimsMongoDbContext context) : IClaimReposi
         return entity?.ToDomain();
     }
 
-    public async Task AddAsync(Claim claim, CancellationToken cancellationToken)
+    public async Task AddAsync(Claim claim, string httpMethod, CancellationToken cancellationToken)
     {
-        context.Claims.Add(claim.ToDocument());
+        var document = claim.ToDocument();
+
+        context.Claims.Add(document);
+        context.OutboxMessages.Add(document.ToOutboxMessage(httpMethod));
+
         await context.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task DeleteAsync(string id, CancellationToken cancellationToken)
+    public async Task DeleteAsync(string id, string httpMethod, CancellationToken cancellationToken)
     {
         var entity = await context.Claims
             .Where(c => c.Id == id)
@@ -37,6 +42,8 @@ public sealed class ClaimRepository(ClaimsMongoDbContext context) : IClaimReposi
         if (entity is not null)
         {
             context.Claims.Remove(entity);
+            context.OutboxMessages.Add(entity.ToOutboxMessage(httpMethod));
+
             await context.SaveChangesAsync(cancellationToken);
         }
     }

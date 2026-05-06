@@ -8,7 +8,7 @@ public interface ICoverRepository
 
     Task<Cover?> GetByIdAsync(string id, CancellationToken cancellationToken);
 
-    Task AddAsync(Cover cover, CancellationToken cancellationToken);
+    Task AddAsync(Cover cover, string httpMethod, CancellationToken cancellationToken);
 
-    Task DeleteAsync(string id, CancellationToken cancellationToken);
+    Task DeleteAsync(string id, string httpMethod, CancellationToken cancellationToken);
 }

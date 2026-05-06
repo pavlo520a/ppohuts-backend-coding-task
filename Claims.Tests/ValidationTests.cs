@@ -167,12 +167,12 @@ public sealed class ValidationTests
             return Task.FromResult(cover?.Id == id ? cover : null);
         }
 
-        public Task AddAsync(Cover cover, CancellationToken cancellationToken)
+        public Task AddAsync(Cover cover, string httpMethod, CancellationToken cancellationToken)
         {
             throw new NotSupportedException();
         }
 
-        public Task DeleteAsync(string id, CancellationToken cancellationToken)
+        public Task DeleteAsync(string id, string httpMethod, CancellationToken cancellationToken)
         {
             throw new NotSupportedException();
         }

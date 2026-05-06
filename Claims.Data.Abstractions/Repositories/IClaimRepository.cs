@@ -8,7 +8,7 @@ public interface IClaimRepository
 
     Task<Claim?> GetByIdAsync(string id, CancellationToken cancellationToken);
 
-    Task AddAsync(Claim claim, CancellationToken cancellationToken);
+    Task AddAsync(Claim claim, string httpMethod, CancellationToken cancellationToken);
 
-    Task DeleteAsync(string id, CancellationToken cancellationToken);
+    Task DeleteAsync(string id, string httpMethod, CancellationToken cancellationToken);
 }
