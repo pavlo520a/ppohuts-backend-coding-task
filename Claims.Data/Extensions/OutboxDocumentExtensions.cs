@@ -1,17 +1,16 @@
 using System.Text.Json;
 using Claims.Data.Abstractions.Outbox;
 using Claims.Data.Documents;
-using Claims.Data.Outbox;
+using Claims.Domain.Models;
 
 namespace Claims.Data.Extensions;
 
 internal static class OutboxDocumentExtensions
 {
-    public static OutboxMessageDocument ToOutboxMessage(this BaseDocument document, string httpMethod)
+    public static OutboxMessageDocument ToOutboxMessage(this BaseDocument document, string aggregateType, string httpMethod)
     {
         var occurredAtUtc = DateTime.UtcNow;
-        var aggregateType = document.GetType().Name;
-        var payload = new AuditOutboxPayload
+        var payload = new AuditOutbox
         {
             EntityType = aggregateType,
             EntityId = document.Id,

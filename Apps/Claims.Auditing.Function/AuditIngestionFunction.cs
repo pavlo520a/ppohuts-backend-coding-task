@@ -1,26 +1,65 @@
 using System.Text.Json;
+using Claims.Data.Auditing.Abstractions.Repositories;
+using Claims.Domain.Constants;
+using Claims.Domain.Models;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 
 namespace Claims.Auditing.Function;
 
 public sealed class AuditIngestionFunction(
-    IAuditWriteRepository auditWriteRepository,
+    IClaimAuditTrailRepository claimAuditTrailRepository,
+    ICoverAuditTrailRepository coverAuditTrailRepository,
     ILogger<AuditIngestionFunction> logger)
 {
     [Function("AuditIngestionFunction")]
     public async Task RunAsync(
-        [ServiceBusTrigger("%ServiceBus:QueueName%", Connection = "ServiceBus:ConnectionString")]
+        [ServiceBusTrigger("%ServiceBusQueueName%", Connection = "ServiceBusConnectionString")]
         string payload,
         CancellationToken cancellationToken)
     {
-        var auditMessage = JsonSerializer.Deserialize<AuditMessage>(payload);
-        if (auditMessage is null)
+        var auditOutbox = JsonSerializer.Deserialize<AuditOutbox>(payload)
+            ?? throw new InvalidOperationException("Invalid audit payload.");
+
+        Func<AuditOutbox, CancellationToken, Task> handler = auditOutbox.EntityType switch
         {
-            logger.LogWarning("Received empty or invalid audit payload.");
+            AuditAggregateTypes.Claim => HandleClaimAsync,
+            AuditAggregateTypes.Cover => HandleCoverAsync,
+            _ => throw new InvalidOperationException($"Unknown aggregate type '{auditOutbox.EntityType}'.")
+        };
+
+        await handler(auditOutbox, cancellationToken);
+    }
+
+    private async Task HandleClaimAsync(AuditOutbox auditOutbox, CancellationToken cancellationToken)
+    {
+        var exists = await claimAuditTrailRepository.AnyAsync(
+            auditOutbox.EntityId,
+            auditOutbox.HttpMethod,
+            cancellationToken);
+
+        if (exists)
+        {
+            logger.LogInformation("Duplicate claim audit ignored for entity {EntityId}.", auditOutbox.EntityId);
             return;
         }
 
-        await auditWriteRepository.WriteAsync(auditMessage, cancellationToken);
+        await claimAuditTrailRepository.WriteAsync(auditOutbox.EntityId, auditOutbox.HttpMethod, cancellationToken);
+    }
+
+    private async Task HandleCoverAsync(AuditOutbox auditOutbox, CancellationToken cancellationToken)
+    {
+        var exists = await coverAuditTrailRepository.AnyAsync(
+            auditOutbox.EntityId,
+            auditOutbox.HttpMethod,
+            cancellationToken);
+
+        if (exists)
+        {
+            logger.LogInformation("Duplicate cover audit ignored for entity {EntityId}.", auditOutbox.EntityId);
+            return;
+        }
+
+        await coverAuditTrailRepository.WriteAsync(auditOutbox.EntityId, auditOutbox.HttpMethod, cancellationToken);
     }
 }

@@ -1,6 +1,6 @@
-namespace Claims.Data.Outbox;
+namespace Claims.Domain.Models;
 
-public sealed class AuditOutboxPayload
+public sealed class AuditOutbox
 {
     public required string EntityType { get; init; }
 

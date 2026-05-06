@@ -2,13 +2,9 @@
   "IsEncrypted": false,
   "Values": {
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
-    "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated"
-  },
-  "SqlServer": {
-    "ConnectionString": ""
-  },
-  "ServiceBus": {
-    "ConnectionString": "",
-    "QueueName": "claims-audit-outbox"
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
+    "ServiceBusConnectionString": "",
+    "ServiceBusQueueName": "claims-audit-outbox",
+    "SqlServer__ConnectionString": ""
   }
 }

@@ -1,6 +1,7 @@
 using Claims.Data.Abstractions.Repositories;
 using Claims.Data.Extensions;
 using Claims.Data.Mapping;
+using Claims.Domain.Constants;
 using Claims.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -28,7 +29,7 @@ public sealed class CoverRepository(ClaimsMongoDbContext context) : ICoverReposi
         var document = cover.ToDocument();
 
         context.Covers.Add(document);
-        context.OutboxMessages.Add(document.ToOutboxMessage(httpMethod));
+        context.OutboxMessages.Add(document.ToOutboxMessage(AuditAggregateTypes.Cover, httpMethod));
 
         await context.SaveChangesAsync(cancellationToken);
     }
@@ -42,7 +43,7 @@ public sealed class CoverRepository(ClaimsMongoDbContext context) : ICoverReposi
         if (entity is not null)
         {
             context.Covers.Remove(entity);
-            context.OutboxMessages.Add(entity.ToOutboxMessage(httpMethod));
+            context.OutboxMessages.Add(entity.ToOutboxMessage(AuditAggregateTypes.Cover, httpMethod));
 
             await context.SaveChangesAsync(cancellationToken);
         }
