@@ -3,10 +3,8 @@
   "extensions": {
     "serviceBus": {
       "prefetchCount": 10,
-      "messageHandlerOptions": {
-        "maxConcurrentCalls": 4,
-        "autoCompleteMessages": false
-      }
+      "maxConcurrentCalls": 4,
+      "autoCompleteMessages": false
     }
   },
   "logging": {

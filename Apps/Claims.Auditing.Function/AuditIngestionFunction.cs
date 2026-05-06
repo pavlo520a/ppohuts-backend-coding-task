@@ -5,7 +5,7 @@ using Claims.Domain.Models;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 
-namespace Claims.Auditing.Function;
+namespace Claims.Auditing.AzureFunctionIsolated;
 
 public sealed class AuditIngestionFunction(
     IClaimAuditTrailRepository claimAuditTrailRepository,
