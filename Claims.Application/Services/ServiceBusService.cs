@@ -1,4 +1,5 @@
 using Azure.Messaging.ServiceBus;
+using Claims.Application.Abstractions.Services;
 using Claims.Application.Options.Outbox;
 using Microsoft.Extensions.Options;
 

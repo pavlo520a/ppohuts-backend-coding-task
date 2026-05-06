@@ -1,4 +1,4 @@
-namespace Claims.Application.Services;
+namespace Claims.Application.Abstractions.Services;
 
 public interface IServiceBusService
 {
