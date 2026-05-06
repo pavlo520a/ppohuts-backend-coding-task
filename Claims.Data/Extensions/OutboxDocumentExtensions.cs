@@ -1,6 +1,6 @@
 using System.Text.Json;
-using Claims.Data.Abstractions.Outbox;
 using Claims.Data.Documents;
+using Claims.Domain.Enums;
 using Claims.Domain.Models;
 
 namespace Claims.Data.Extensions;

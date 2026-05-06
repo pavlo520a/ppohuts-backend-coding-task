@@ -13,13 +13,4 @@ public static class DiscountRuleExtensions
             _ => rule.OtherDiscount
         };
     }
-
-    public static decimal GetDiscount(this DayRangeDiscountRuleOptions rule, CoverType coverType)
-    {
-        return coverType switch
-        {
-            CoverType.Yacht => rule.YachtDiscount,
-            _ => rule.OtherDiscount
-        };
-    }
 }

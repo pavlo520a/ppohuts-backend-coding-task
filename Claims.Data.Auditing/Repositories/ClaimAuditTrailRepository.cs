@@ -14,7 +14,7 @@ public sealed class ClaimAuditTrailRepository(AuditContext context) : IClaimAudi
             cancellationToken);
     }
 
-    public async Task WriteAsync(string claimId, string httpMethod, CancellationToken cancellationToken)
+    public async Task AddAsync(string claimId, string httpMethod, CancellationToken cancellationToken)
     {
         context.ClaimAudits.Add(new ClaimAudit
         {

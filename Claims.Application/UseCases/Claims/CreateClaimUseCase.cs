@@ -3,6 +3,9 @@ using Claims.Application.Commands.Claims;
 using Claims.Data.Abstractions.Repositories;
 using Claims.Domain.Models;
 using FluentValidation;
+using System.Diagnostics.Tracing;
+using System.Net.Http;
+using System.Reflection.Metadata;
 
 namespace Claims.Application.UseCases.Claims;
 

@@ -2,6 +2,6 @@ namespace Claims.Domain.Constants;
 
 public static class AuditAggregateTypes
 {
-    public const string Claim = "ClaimDocument";
-    public const string Cover = "CoverDocument";
+    public const string Claim = "Claim";
+    public const string Cover = "Cover";
 }

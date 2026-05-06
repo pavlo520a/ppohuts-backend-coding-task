@@ -1,8 +1,9 @@
+using Claims.Application.Abstractions;
 using Claims.Domain.Enums;
 
 namespace Claims.Application.Commands.Covers;
 
-public record CreateCoverCommand
+public record CreateCoverCommand : ICommand
 {
     public required DateTime StartDate { get; init; }
 

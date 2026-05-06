@@ -1,11 +1,6 @@
-namespace Claims.Data.Abstractions.Outbox;
+using Claims.Domain.Enums;
 
-public enum OutboxMessageStatus
-{
-    Pending = 0,
-    Processing = 1,
-    Sent = 2
-}
+namespace Claims.Domain.Models;
 
 public sealed class OutboxMessage
 {

@@ -44,7 +44,7 @@ public sealed class AuditIngestionFunction(
             return;
         }
 
-        await claimAuditTrailRepository.WriteAsync(auditOutbox.EntityId, auditOutbox.HttpMethod, cancellationToken);
+        await claimAuditTrailRepository.AddAsync(auditOutbox.EntityId, auditOutbox.HttpMethod, cancellationToken);
     }
 
     private async Task HandleCoverAsync(AuditOutbox auditOutbox, CancellationToken cancellationToken)
@@ -60,6 +60,6 @@ public sealed class AuditIngestionFunction(
             return;
         }
 
-        await coverAuditTrailRepository.WriteAsync(auditOutbox.EntityId, auditOutbox.HttpMethod, cancellationToken);
+        await coverAuditTrailRepository.AddAsync(auditOutbox.EntityId, auditOutbox.HttpMethod, cancellationToken);
     }
 }

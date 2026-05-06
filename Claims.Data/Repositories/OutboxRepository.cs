@@ -1,5 +1,7 @@
-using Claims.Data.Abstractions.Outbox;
+using Claims.Data.Abstractions.Repositories;
 using Claims.Data.Mapping;
+using Claims.Domain.Enums;
+using Claims.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Claims.Data.Repositories;

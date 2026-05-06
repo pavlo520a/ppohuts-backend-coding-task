@@ -13,7 +13,7 @@ public sealed class CoverAuditTrailRepository(AuditContext context) : ICoverAudi
             cancellationToken);
     }
 
-    public async Task WriteAsync(string coverId, string httpMethod, CancellationToken cancellationToken)
+    public async Task AddAsync(string coverId, string httpMethod, CancellationToken cancellationToken)
     {
         context.CoverAudits.Add(new CoverAudit
         {

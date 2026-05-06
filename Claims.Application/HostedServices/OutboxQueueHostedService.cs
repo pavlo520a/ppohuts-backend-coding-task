@@ -1,6 +1,6 @@
 using Claims.Application.Abstractions.Services;
 using Claims.Application.Options.Outbox;
-using Claims.Data.Abstractions.Outbox;
+using Claims.Data.Abstractions.Repositories;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;

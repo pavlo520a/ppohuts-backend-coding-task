@@ -1,4 +1,6 @@
-namespace Claims.Data.Abstractions.Outbox;
+using Claims.Domain.Models;
+
+namespace Claims.Data.Abstractions.Repositories;
 
 public interface IOutboxRepository
 {

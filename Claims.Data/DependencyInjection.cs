@@ -1,4 +1,3 @@
-using Claims.Data.Abstractions.Outbox;
 using Claims.Data.Abstractions.Repositories;
 using Claims.Data.Options;
 using Claims.Data.Repositories;

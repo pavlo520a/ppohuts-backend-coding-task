@@ -1,8 +1,9 @@
+using Claims.Application.Abstractions;
 using Claims.Domain.Enums;
 
 namespace Claims.Application.Commands.Formulas;
 
-public record ComputePremiumCommand
+public record ComputePremiumCommand : ICommand
 {
     public required DateTime StartDate { get; init; }
 

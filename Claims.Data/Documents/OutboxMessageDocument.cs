@@ -1,4 +1,4 @@
-using Claims.Data.Abstractions.Outbox;
+using Claims.Domain.Enums;
 
 namespace Claims.Data.Documents;
 
