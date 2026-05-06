@@ -2,23 +2,20 @@ using Claims.Data.Abstractions.Repositories;
 using Claims.Domain.Enums;
 using Claims.Domain.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 namespace Claims.Data.Repositories;
 
 public sealed class OutboxRepository(ClaimsMongoDbContext context) : IOutboxRepository
 {
-    public void Add(AuditOutbox auditOutbox)
+    public void Add(BaseAuditOutbox auditOutbox)
     {
         context.OutboxMessages.Add(new Documents.OutboxMessageDocument
         {
             Id = Guid.NewGuid().ToString("N"),
-            OccurredAtUtc = auditOutbox.OccurredAtUtc,
-            AggregateType = auditOutbox.EntityType,
-            AggregateId = auditOutbox.EntityId,
-            Operation = "audit",
-            HttpMethod = auditOutbox.HttpMethod,
-            Payload = System.Text.Json.JsonSerializer.Serialize(auditOutbox),
+            Payload = JsonSerializer.Serialize(auditOutbox),
             Status = OutboxMessageStatus.Pending,
+            OccurredAtUtc = DateTime.UtcNow,
             Attempts = 0
         });
     }

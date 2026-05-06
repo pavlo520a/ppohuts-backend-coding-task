@@ -4,25 +4,17 @@ namespace Claims.Domain.Models;
 
 public sealed class OutboxMessage
 {
-    public required string Id { get; init; }
+    public required string Id { get; set; }
 
-    public required DateTime OccurredAtUtc { get; init; }
+    public required DateTime OccurredAtUtc { get; set; }
 
-    public required string AggregateType { get; init; }
+    public required string Payload { get; set; }
 
-    public required string AggregateId { get; init; }
+    public OutboxMessageStatus Status { get; set; }
 
-    public required string Operation { get; init; }
+    public int Attempts { get; set; }
 
-    public required string HttpMethod { get; init; }
+    public string? LastError { get; set; }
 
-    public required string Payload { get; init; }
-
-    public OutboxMessageStatus Status { get; init; }
-
-    public int Attempts { get; init; }
-
-    public string? LastError { get; init; }
-
-    public DateTime? SentAtUtc { get; init; }
+    public DateTime? SentAtUtc { get; set; }
 }

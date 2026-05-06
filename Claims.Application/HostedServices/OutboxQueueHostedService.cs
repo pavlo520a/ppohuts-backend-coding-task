@@ -2,7 +2,6 @@ using Claims.Application.Abstractions.Services;
 using Claims.Application.Options.Outbox;
 using Claims.Data.Abstractions;
 using Claims.Data.Abstractions.Queries;
-using Claims.Data.Abstractions.Repositories;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -16,33 +15,41 @@ public sealed class OutboxQueueHostedService(
     IServiceBusService serviceBusService,
     ILogger<OutboxQueueHostedService> logger) : BackgroundService
 {
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
-        while (!stoppingToken.IsCancellationRequested)
+        while (!cancellationToken.IsCancellationRequested)
         {
             try
             {
                 using var scope = scopeFactory.CreateScope();
                 var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
                 var outboxQuery = scope.ServiceProvider.GetRequiredService<IOutboxQuery>();
-                var batch = await outboxQuery.GetPendingBatchAsync(processorOptions.Value.BatchSize, stoppingToken);
+
+                var batch = await outboxQuery.GetPendingBatchAsync(
+                    processorOptions.Value.BatchSize,
+                    cancellationToken);
 
                 foreach (var entry in batch)
                 {
-                    await unitOfWork.OutboxRepository.MarkProcessingAsync(entry.Id, stoppingToken);
-                    await unitOfWork.SaveChangesAsync(stoppingToken);
+                    await unitOfWork.OutboxRepository.MarkProcessingAsync(entry.Id, cancellationToken);
+                    await unitOfWork.SaveChangesAsync(cancellationToken);
 
                     try
                     {
-                        await serviceBusService.SendAsync(entry.Payload, entry.Id, entry.AggregateType, stoppingToken);
-                        await unitOfWork.OutboxRepository.MarkSentAsync(entry.Id, stoppingToken);
-                        await unitOfWork.SaveChangesAsync(stoppingToken);
+                        await serviceBusService.SendAsync(
+                            entry.Payload,
+                            entry.Id,
+                            cancellationToken);
+
+                        await unitOfWork.OutboxRepository.MarkSentAsync(entry.Id, cancellationToken);
+                        await unitOfWork.SaveChangesAsync(cancellationToken);
                     }
                     catch (Exception ex)
                     {
                         logger.LogError(ex, "Failed to send outbox message {MessageId}", entry.Id);
-                        await unitOfWork.OutboxRepository.MarkFailedAsync(entry.Id, ex.Message, stoppingToken);
-                        await unitOfWork.SaveChangesAsync(stoppingToken);
+
+                        await unitOfWork.OutboxRepository.MarkFailedAsync(entry.Id, ex.Message, cancellationToken);
+                        await unitOfWork.SaveChangesAsync(cancellationToken);
                     }
                 }
             }
@@ -51,7 +58,7 @@ public sealed class OutboxQueueHostedService(
                 logger.LogError(ex, "Outbox batch iteration failed.");
             }
 
-            await Task.Delay(processorOptions.Value.PollIntervalMs, stoppingToken);
+            await Task.Delay(processorOptions.Value.PollIntervalMs, cancellationToken);
         }
     }
 }

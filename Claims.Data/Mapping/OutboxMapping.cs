@@ -10,10 +10,6 @@ public static class OutboxMapping
         {
             Id = document.Id,
             OccurredAtUtc = document.OccurredAtUtc,
-            AggregateType = document.AggregateType,
-            AggregateId = document.AggregateId,
-            Operation = document.Operation,
-            HttpMethod = document.HttpMethod,
             Payload = document.Payload,
             Status = document.Status,
             Attempts = document.Attempts,

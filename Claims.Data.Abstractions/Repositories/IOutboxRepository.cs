@@ -4,7 +4,7 @@ namespace Claims.Data.Abstractions.Repositories;
 
 public interface IOutboxRepository
 {
-    void Add(AuditOutbox auditOutbox);
+    void Add(BaseAuditOutbox auditOutbox);
 
     Task MarkProcessingAsync(string id, CancellationToken cancellationToken);
 

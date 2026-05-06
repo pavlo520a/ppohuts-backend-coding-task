@@ -122,7 +122,7 @@ public sealed class OutboxUseCasesTests
     {
         public int AddCalls { get; private set; }
 
-        public void Add(AuditOutbox auditOutbox)
+        public void Add<TAuditOutbox>(TAuditOutbox auditOutbox) where TAuditOutbox : BaseAuditOutbox
         {
             AddCalls++;
         }

@@ -6,14 +6,6 @@ public sealed class OutboxMessageDocument : BaseDocument
 {
     public DateTime OccurredAtUtc { get; set; }
 
-    public required string AggregateType { get; set; }
-
-    public required string AggregateId { get; set; }
-
-    public required string Operation { get; set; }
-
-    public required string HttpMethod { get; set; }
-
     public required string Payload { get; set; }
 
     public OutboxMessageStatus Status { get; set; }
