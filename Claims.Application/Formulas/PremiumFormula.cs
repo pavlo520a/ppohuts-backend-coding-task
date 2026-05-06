@@ -1,44 +1,41 @@
 using Claims.Application.Abstractions.Formulas;
-using Claims.Domain.Enums;
+using Claims.Application.Extensions.Formulas;
+using Claims.Application.Options.Formulas;
 using Claims.Domain.Models.Formulas;
+using Microsoft.Extensions.Options;
 
 namespace Claims.Application.Formulas;
 
-public sealed class PremiumFormula : IFormula<CoverPremiumFormulaArgs>
+public sealed class PremiumFormula(IOptions<PremiumPricingOptions> options) : IFormula<CoverPremiumFormulaArgs>
 {
+    private readonly PremiumPricingOptions premiumPricing = options.Value;
+
     public decimal Calculate(CoverPremiumFormulaArgs args)
     {
-        var coverType = args.CoverType;
-        var startDate = args.StartDate;
-        var endDate = args.EndDate;
+        var totalDays = (args.EndDate.Date - args.StartDate.Date).Days + 1;
 
-        var multiplier = 1.3m;
-        if (coverType == CoverType.Yacht)
+        if (totalDays <= 0)
         {
-            multiplier = 1.1m;
+            return 0m;
         }
 
-        if (coverType == CoverType.PassengerShip)
-        {
-            multiplier = 1.2m;
-        }
-
-        if (coverType == CoverType.Tanker)
-        {
-            multiplier = 1.5m;
-        }
-
-        var premiumPerDay = 1250 * multiplier;
-        var insuranceLength = (endDate - startDate).TotalDays;
+        var dailyPremium = premiumPricing.BaseDayRate * premiumPricing.TypeMultipliers.GetTypeMultiplier(args.CoverType);
+        var remainingDays = totalDays;
         var totalPremium = 0m;
 
-        for (var i = 0; i < insuranceLength; i++)
+        foreach (var rule in premiumPricing.DiscountRules.DayRangeDiscountRules.TakeWhile(_ => remainingDays > 0))
         {
-            if (i < 30) totalPremium += premiumPerDay;
-            if (i < 180 && coverType == CoverType.Yacht) totalPremium += premiumPerDay - premiumPerDay * 0.05m;
-            else if (i < 180) totalPremium += premiumPerDay - premiumPerDay * 0.02m;
-            if (i < 365 && coverType != CoverType.Yacht) totalPremium += premiumPerDay - premiumPerDay * 0.03m;
-            else if (i < 365) totalPremium += premiumPerDay - premiumPerDay * 0.08m;
+            var daysPerRule = rule.GetDaysPerRule(remainingDays);
+            var discount = rule.GetDiscount(args.CoverType);
+
+            totalPremium += daysPerRule * dailyPremium * (1m - discount);
+            remainingDays -= daysPerRule;
+        }
+
+        if (remainingDays > 0)
+        {
+            var remainingDiscount = premiumPricing.DiscountRules.Remaining.GetDiscount(args.CoverType);
+            totalPremium += remainingDays * dailyPremium * (1m - remainingDiscount);
         }
 
         return totalPremium;
