@@ -1,10 +1,11 @@
-using Claims.Data.Abstractions.Repositories;
+using Claims.Data.Abstractions.Queries;
 using Claims.Data.Options;
-using Claims.Data.Repositories;
+using Claims.Data.Queries;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
+using Claims.Data.Abstractions;
 
 namespace Claims.Data;
 
@@ -26,9 +27,10 @@ public static class DependencyInjection
             options.UseMongoDB(database.Client, database.DatabaseNamespace.DatabaseName);
         });
 
-        services.AddScoped<IClaimRepository, ClaimRepository>();
-        services.AddScoped<ICoverRepository, CoverRepository>();
-        services.AddScoped<IOutboxRepository, OutboxRepository>();
+        services.AddScoped<IClaimQuery, ClaimQuery>();
+        services.AddScoped<ICoverQuery, CoverQuery>();
+        services.AddScoped<IOutboxQuery, OutboxQuery>();
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         services
             .AddOptions<MongoDbOptions>()

@@ -1,6 +1,5 @@
 using System.Text.Json;
 using Claims.Data.Auditing.Abstractions.Repositories;
-using Claims.Domain.Constants;
 using Claims.Domain.Models;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
@@ -15,20 +14,20 @@ public sealed class AuditIngestionFunction(
     [Function("AuditIngestionFunction")]
     public async Task RunAsync(
         [ServiceBusTrigger("%ServiceBusQueueName%", Connection = "ServiceBusConnectionString")]
-        string payload,
+        string auditOutbox,
         CancellationToken cancellationToken)
     {
-        var auditOutbox = JsonSerializer.Deserialize<AuditOutbox>(payload)
+        var outbox = JsonSerializer.Deserialize<AuditOutbox>(auditOutbox)
             ?? throw new InvalidOperationException("Invalid audit payload.");
 
-        Func<AuditOutbox, CancellationToken, Task> handler = auditOutbox.EntityType switch
+        Func<AuditOutbox, CancellationToken, Task> handler = outbox.EntityType switch
         {
-            AuditAggregateTypes.Claim => HandleClaimAsync,
-            AuditAggregateTypes.Cover => HandleCoverAsync,
-            _ => throw new InvalidOperationException($"Unknown aggregate type '{auditOutbox.EntityType}'.")
+            nameof(Claim) => HandleClaimAsync,
+            nameof(Cover) => HandleCoverAsync,
+            _ => throw new InvalidOperationException($"Unknown aggregate type '{outbox.EntityType}'.")
         };
 
-        await handler(auditOutbox, cancellationToken);
+        await handler(outbox, cancellationToken);
     }
 
     private async Task HandleClaimAsync(AuditOutbox auditOutbox, CancellationToken cancellationToken)

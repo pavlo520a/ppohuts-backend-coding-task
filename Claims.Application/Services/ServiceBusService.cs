@@ -16,9 +16,9 @@ public sealed class ServiceBusService : IServiceBusService, IAsyncDisposable
         sender = client.CreateSender(options.Value.QueueName);
     }
 
-    public async Task SendAsync(string payload, string messageId, string subject, CancellationToken cancellationToken)
+    public async Task SendAsync(string auditOutbox, string messageId, string subject, CancellationToken cancellationToken)
     {
-        var message = new ServiceBusMessage(payload)
+        var message = new ServiceBusMessage(auditOutbox)
         {
             MessageId = messageId,
             Subject = subject

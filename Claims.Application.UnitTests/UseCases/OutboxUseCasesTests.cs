@@ -2,6 +2,7 @@ using Claims.Application.Commands.Claims;
 using Claims.Application.Commands.Covers;
 using Claims.Application.UseCases.Claims;
 using Claims.Application.UseCases.Covers;
+using Claims.Data.Abstractions;
 using Claims.Data.Abstractions.Repositories;
 using Claims.Domain.Enums;
 using Claims.Domain.Models;
@@ -15,8 +16,8 @@ public sealed class OutboxUseCasesTests
     [Fact]
     public async Task CreateClaimUseCase_WritesToClaimRepository()
     {
-        var claimRepository = new StubClaimRepository();
-        var useCase = new CreateClaimUseCase(claimRepository, new InlineValidator<CreateClaimCommand>());
+        var unitOfWork = new StubUnitOfWork();
+        var useCase = new CreateClaimUseCase(unitOfWork, new InlineValidator<CreateClaimCommand>());
         var command = new CreateClaimCommand
         {
             CoverId = "cover-1",
@@ -29,28 +30,32 @@ public sealed class OutboxUseCasesTests
 
         await useCase.ExecuteAsync(command, TestContext.Current.CancellationToken);
 
-        Assert.Equal(1, claimRepository.AddCalls);
+        Assert.Equal(1, unitOfWork.ClaimsRepositoryStub.AddCalls);
+        Assert.Equal(1, unitOfWork.OutboxRepositoryStub.AddCalls);
+        Assert.Equal(1, unitOfWork.SaveCalls);
     }
 
     [Fact]
     public async Task DeleteClaimUseCase_WritesToClaimRepository()
     {
-        var claimRepository = new StubClaimRepository();
-        var useCase = new DeleteClaimUseCase(claimRepository);
+        var unitOfWork = new StubUnitOfWork();
+        var useCase = new DeleteClaimUseCase(unitOfWork);
 
         await useCase.ExecuteAsync(
             new DeleteClaimCommand { Id = "claim-1", HttpMethod = "DELETE" },
             TestContext.Current.CancellationToken);
 
-        Assert.Equal(1, claimRepository.DeleteCalls);
+        Assert.Equal(1, unitOfWork.ClaimsRepositoryStub.DeleteCalls);
+        Assert.Equal(1, unitOfWork.OutboxRepositoryStub.AddCalls);
+        Assert.Equal(1, unitOfWork.SaveCalls);
     }
 
     [Fact]
     public async Task CreateCoverUseCase_WritesToCoverRepository()
     {
-        var coverRepository = new StubCoverRepository();
+        var unitOfWork = new StubUnitOfWork();
         var formula = new StubFormula();
-        var useCase = new CreateCoverUseCase(coverRepository, formula, new InlineValidator<CreateCoverCommand>());
+        var useCase = new CreateCoverUseCase(unitOfWork, formula, new InlineValidator<CreateCoverCommand>());
         var command = new CreateCoverCommand
         {
             StartDate = DateTime.UtcNow.Date.AddDays(1),
@@ -61,20 +66,24 @@ public sealed class OutboxUseCasesTests
 
         await useCase.ExecuteAsync(command, TestContext.Current.CancellationToken);
 
-        Assert.Equal(1, coverRepository.AddCalls);
+        Assert.Equal(1, unitOfWork.CoversRepositoryStub.AddCalls);
+        Assert.Equal(1, unitOfWork.OutboxRepositoryStub.AddCalls);
+        Assert.Equal(1, unitOfWork.SaveCalls);
     }
 
     [Fact]
     public async Task DeleteCoverUseCase_WritesToCoverRepository()
     {
-        var coverRepository = new StubCoverRepository();
-        var useCase = new DeleteCoverUseCase(coverRepository);
+        var unitOfWork = new StubUnitOfWork();
+        var useCase = new DeleteCoverUseCase(unitOfWork);
 
         await useCase.ExecuteAsync(
             new DeleteCoverCommand { Id = "cover-1", HttpMethod = "DELETE" },
             TestContext.Current.CancellationToken);
 
-        Assert.Equal(1, coverRepository.DeleteCalls);
+        Assert.Equal(1, unitOfWork.CoversRepositoryStub.DeleteCalls);
+        Assert.Equal(1, unitOfWork.OutboxRepositoryStub.AddCalls);
+        Assert.Equal(1, unitOfWork.SaveCalls);
     }
 
     private sealed class StubClaimRepository : IClaimRepository
@@ -82,26 +91,14 @@ public sealed class OutboxUseCasesTests
         public int AddCalls { get; private set; }
         public int DeleteCalls { get; private set; }
 
-        public Task<IReadOnlyList<Claim>> GetAllAsync(CancellationToken cancellationToken)
-        {
-            return Task.FromResult<IReadOnlyList<Claim>>([]);
-        }
-
-        public Task<Claim?> GetByIdAsync(string id, CancellationToken cancellationToken)
-        {
-            return Task.FromResult<Claim?>(null);
-        }
-
-        public Task AddAsync(Claim claim, string httpMethod, CancellationToken cancellationToken)
+        public void Add(Claim claim)
         {
             AddCalls++;
-            return Task.CompletedTask;
         }
 
-        public Task DeleteAsync(string id, string httpMethod, CancellationToken cancellationToken)
+        public void Delete(string id)
         {
             DeleteCalls++;
-            return Task.CompletedTask;
         }
     }
 
@@ -110,25 +107,58 @@ public sealed class OutboxUseCasesTests
         public int AddCalls { get; private set; }
         public int DeleteCalls { get; private set; }
 
-        public Task<IReadOnlyList<Cover>> GetAllAsync(CancellationToken cancellationToken)
-        {
-            return Task.FromResult<IReadOnlyList<Cover>>([]);
-        }
-
-        public Task<Cover?> GetByIdAsync(string id, CancellationToken cancellationToken)
-        {
-            return Task.FromResult<Cover?>(null);
-        }
-
-        public Task AddAsync(Cover cover, string httpMethod, CancellationToken cancellationToken)
+        public void Add(Cover cover)
         {
             AddCalls++;
+        }
+
+        public void Delete(string id)
+        {
+            DeleteCalls++;
+        }
+    }
+
+    private sealed class StubOutboxRepository : IOutboxRepository
+    {
+        public int AddCalls { get; private set; }
+
+        public void Add(AuditOutbox auditOutbox)
+        {
+            AddCalls++;
+        }
+
+        public Task MarkProcessingAsync(string id, CancellationToken cancellationToken)
+        {
             return Task.CompletedTask;
         }
 
-        public Task DeleteAsync(string id, string httpMethod, CancellationToken cancellationToken)
+        public Task MarkSentAsync(string id, CancellationToken cancellationToken)
         {
-            DeleteCalls++;
+            return Task.CompletedTask;
+        }
+
+        public Task MarkFailedAsync(string id, string error, CancellationToken cancellationToken)
+        {
+            return Task.CompletedTask;
+        }
+    }
+
+    private sealed class StubUnitOfWork : IUnitOfWork
+    {
+        public int SaveCalls { get; private set; }
+        public StubClaimRepository ClaimsRepositoryStub { get; } = new();
+        public StubCoverRepository CoversRepositoryStub { get; } = new();
+        public StubOutboxRepository OutboxRepositoryStub { get; } = new();
+
+        public IClaimRepository ClaimsRepository => ClaimsRepositoryStub;
+
+        public ICoverRepository CoversRepository => CoversRepositoryStub;
+
+        public IOutboxRepository OutboxRepository => OutboxRepositoryStub;
+
+        public Task SaveChangesAsync(CancellationToken cancellationToken)
+        {
+            SaveCalls++;
             return Task.CompletedTask;
         }
     }

@@ -4,7 +4,7 @@ namespace Claims.Data.Abstractions.Repositories;
 
 public interface IOutboxRepository
 {
-    Task<IReadOnlyList<OutboxMessage>> GetPendingBatchAsync(int batchSize, CancellationToken cancellationToken);
+    void Add(AuditOutbox auditOutbox);
 
     Task MarkProcessingAsync(string id, CancellationToken cancellationToken);
 

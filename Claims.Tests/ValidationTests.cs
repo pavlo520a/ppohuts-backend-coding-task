@@ -3,7 +3,7 @@ using Claims.Application.Commands.Covers;
 using Claims.Application.Options;
 using Claims.Application.Validation.Claims;
 using Claims.Application.Validation.Covers;
-using Claims.Data.Abstractions.Repositories;
+using Claims.Data.Abstractions.Queries;
 using Claims.Domain.Enums;
 using Claims.Domain.Models;
 using Microsoft.Extensions.Options;
@@ -155,7 +155,7 @@ public sealed class ValidationTests
         };
     }
 
-    private sealed class StubCoverRepository(Cover? cover) : ICoverRepository
+    private sealed class StubCoverRepository(Cover? cover) : ICoverQuery
     {
         public Task<IReadOnlyList<Cover>> GetAllAsync(CancellationToken cancellationToken)
         {
@@ -165,16 +165,6 @@ public sealed class ValidationTests
         public Task<Cover?> GetByIdAsync(string id, CancellationToken cancellationToken)
         {
             return Task.FromResult(cover?.Id == id ? cover : null);
-        }
-
-        public Task AddAsync(Cover cover, string httpMethod, CancellationToken cancellationToken)
-        {
-            throw new NotSupportedException();
-        }
-
-        public Task DeleteAsync(string id, string httpMethod, CancellationToken cancellationToken)
-        {
-            throw new NotSupportedException();
         }
     }
 }

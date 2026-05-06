@@ -1,16 +1,14 @@
 using Claims.Application.Abstractions;
 using Claims.Application.Commands.Claims;
+using Claims.Data.Abstractions;
 using Claims.Data.Abstractions.Repositories;
 using Claims.Domain.Models;
 using FluentValidation;
-using System.Diagnostics.Tracing;
-using System.Net.Http;
-using System.Reflection.Metadata;
 
 namespace Claims.Application.UseCases.Claims;
 
 public sealed class CreateClaimUseCase(
-    IClaimRepository claimRepository,
+    IUnitOfWork unitOfWork,
     IValidator<CreateClaimCommand> validator) : IUseCase<CreateClaimCommand, Claim>
 {
     public async Task<Claim> ExecuteAsync(CreateClaimCommand command, CancellationToken cancellationToken)
@@ -27,7 +25,19 @@ public sealed class CreateClaimUseCase(
             DamageCost = command.DamageCost
         };
 
-        await claimRepository.AddAsync(claim, command.HttpMethod, cancellationToken);
+        var auditOutbox = new AuditOutbox
+        {
+            EntityType = nameof(Claim),
+            EntityId = claim.Id,
+            HttpMethod = command.HttpMethod,
+            OccurredAtUtc = DateTime.UtcNow
+        };
+
+        unitOfWork.OutboxRepository.Add(auditOutbox);
+        unitOfWork.ClaimsRepository.Add(claim);
+
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+
         return claim;
     }
 }

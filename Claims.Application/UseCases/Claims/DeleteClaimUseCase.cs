@@ -1,14 +1,27 @@
 using Claims.Application.Abstractions;
 using Claims.Application.Commands.Claims;
+using Claims.Data.Abstractions;
 using Claims.Data.Abstractions.Repositories;
+using Claims.Domain.Models;
 
 namespace Claims.Application.UseCases.Claims;
 
 public sealed class DeleteClaimUseCase(
-    IClaimRepository claimRepository) : IUseCase<DeleteClaimCommand>
+    IUnitOfWork unitOfWork) : IUseCase<DeleteClaimCommand>
 {
     public async Task ExecuteAsync(DeleteClaimCommand command, CancellationToken cancellationToken)
     {
-        await claimRepository.DeleteAsync(command.Id, command.HttpMethod, cancellationToken);
+        var auditOutbox = new AuditOutbox
+        {
+            EntityType = nameof(Claim),
+            EntityId = command.Id,
+            HttpMethod = command.HttpMethod,
+            OccurredAtUtc = DateTime.UtcNow
+        };
+
+        unitOfWork.OutboxRepository.Add(auditOutbox);
+        unitOfWork.ClaimsRepository.Delete(command.Id);
+
+        await unitOfWork.SaveChangesAsync(cancellationToken);
     }
 }
