@@ -3,8 +3,8 @@
   "Values": {
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
     "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
-    "ServiceBusConnectionString": "Endpoint=sb://papotest.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=JfWQpR03MbagD/FUkAyRzyC68EGrjrm2G+ASbMsNgC4=",
+    "ServiceBusConnectionString": "",
     "ServiceBusQueueName": "claims-audit-outbox",
-    "SqlServer__ConnectionString": "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=ClaimsAudit;Integrated Security=True;Connect Timeout=30;Encrypt=True;Trust Server Certificate=False;Application Intent=ReadWrite;Multi Subnet Failover=False"
+    "SqlServer__ConnectionString": ""
   }
 }
