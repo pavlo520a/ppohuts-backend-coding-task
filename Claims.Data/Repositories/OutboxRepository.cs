@@ -20,6 +20,7 @@ public sealed class OutboxRepository(ClaimsMongoDbContext context) : IOutboxRepo
     public async Task MarkProcessingAsync(string id, CancellationToken cancellationToken)
     {
         var entity = await context.OutboxMessages.SingleOrDefaultAsync(x => x.Id == id, cancellationToken);
+
         if (entity is null)
         {
             return;
@@ -27,6 +28,7 @@ public sealed class OutboxRepository(ClaimsMongoDbContext context) : IOutboxRepo
 
         entity.Status = OutboxMessageStatus.Processing;
         entity.LastError = null;
+
         await context.SaveChangesAsync(cancellationToken);
     }
 
