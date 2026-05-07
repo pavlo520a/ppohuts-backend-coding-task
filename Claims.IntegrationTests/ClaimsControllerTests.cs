@@ -1,4 +1,4 @@
-﻿using Claims.Application.Abstractions;
+using Claims.Application.Abstractions;
 using Claims.Application.Commands.Claims;
 using Claims.Domain.Enums;
 using Claims.Domain.Models;
@@ -7,7 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace Claims.Tests
+namespace Claims.IntegrationTests
 {
     public class ClaimsControllerTests
     {
