@@ -137,7 +137,12 @@ public sealed class OutboxUseCasesTests
             return Task.CompletedTask;
         }
 
-        public Task MarkFailedAsync(string id, string error, CancellationToken cancellationToken)
+        public Task RegisterAttemptAsync(string id, string error, CancellationToken cancellationToken)
+        {
+            return Task.CompletedTask;
+        }
+
+        public Task MarkFailedAsync(string id, CancellationToken cancellationToken)
         {
             return Task.CompletedTask;
         }

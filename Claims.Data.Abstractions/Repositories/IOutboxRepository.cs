@@ -10,5 +10,7 @@ public interface IOutboxRepository
 
     Task MarkSentAsync(string id, CancellationToken cancellationToken);
 
-    Task MarkFailedAsync(string id, string error, CancellationToken cancellationToken);
+    Task RegisterAttemptAsync(string id, string error, CancellationToken cancellationToken);
+
+    Task MarkFailedAsync(string id, CancellationToken cancellationToken);
 }

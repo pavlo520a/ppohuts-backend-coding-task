@@ -2,6 +2,7 @@ using Claims.Application.Abstractions.Services;
 using Claims.Application.Options.Outbox;
 using Claims.Data.Abstractions;
 using Claims.Data.Abstractions.Queries;
+using Claims.Domain.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -48,8 +49,11 @@ public sealed class OutboxQueueHostedService(
                     {
                         logger.LogError(ex, "Failed to send outbox message {MessageId}", entry.Id);
 
-                        await unitOfWork.OutboxRepository.MarkFailedAsync(entry.Id, ex.Message, cancellationToken);
-                        await unitOfWork.SaveChangesAsync(cancellationToken);
+                        await HandleSendFailureAsync(
+                            unitOfWork,
+                            entry,
+                            ex.Message,
+                            cancellationToken);
                     }
                 }
             }
@@ -60,5 +64,23 @@ public sealed class OutboxQueueHostedService(
 
             await Task.Delay(processorOptions.Value.PollIntervalMs, cancellationToken);
         }
+    }
+
+    private async Task HandleSendFailureAsync(
+        IUnitOfWork unitOfWork,
+        OutboxMessage entry,
+        string error,
+        CancellationToken cancellationToken)
+    {
+        if (entry.Attempts + 1 >= processorOptions.Value.MaxAttempts)
+        {
+            await unitOfWork.OutboxRepository.MarkFailedAsync(entry.Id, cancellationToken);
+        }
+        else
+        {
+            await unitOfWork.OutboxRepository.RegisterAttemptAsync(entry.Id, error, cancellationToken);
+        }
+
+        await unitOfWork.SaveChangesAsync(cancellationToken);
     }
 }

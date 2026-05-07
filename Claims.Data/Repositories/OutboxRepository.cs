@@ -47,17 +47,29 @@ public sealed class OutboxRepository(ClaimsMongoDbContext context) : IOutboxRepo
         entity.LastError = null;
     }
 
-    public async Task MarkFailedAsync(string id, string error, CancellationToken cancellationToken)
+    public async Task RegisterAttemptAsync(string id, string error, CancellationToken cancellationToken)
     {
         var entity = await context.OutboxMessages.SingleOrDefaultAsync(x => x.Id == id, cancellationToken);
-        
+
         if (entity is null)
         {
             return;
         }
 
-        entity.Status = OutboxMessageStatus.Pending;
         entity.Attempts += 1;
         entity.LastError = error;
+        entity.Status = OutboxMessageStatus.Pending;
+    }
+
+    public async Task MarkFailedAsync(string id, CancellationToken cancellationToken)
+    {
+        var entity = await context.OutboxMessages.SingleOrDefaultAsync(x => x.Id == id, cancellationToken);
+
+        if (entity is null)
+        {
+            return;
+        }
+
+        entity.Status = OutboxMessageStatus.Failed;
     }
 }
