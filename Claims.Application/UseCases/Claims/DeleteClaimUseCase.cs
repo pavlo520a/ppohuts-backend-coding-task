@@ -19,8 +19,8 @@ public sealed class DeleteClaimUseCase(
             OccurredAtUtc = DateTime.UtcNow
         };
 
-        unitOfWork.OutboxRepository.Add(auditOutbox);
         unitOfWork.ClaimsRepository.Delete(command.Id);
+        unitOfWork.OutboxRepository.Add(auditOutbox);
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
     }

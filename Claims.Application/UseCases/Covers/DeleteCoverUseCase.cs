@@ -19,8 +19,8 @@ public sealed class DeleteCoverUseCase(
             OccurredAtUtc = DateTime.UtcNow
         };
 
-        unitOfWork.OutboxRepository.Add(auditOutbox);
         unitOfWork.CoversRepository.Delete(command.Id);
+        unitOfWork.OutboxRepository.Add(auditOutbox);
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
     }

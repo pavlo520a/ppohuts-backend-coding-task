@@ -42,8 +42,8 @@ public sealed class CreateCoverUseCase(
             OccurredAtUtc = DateTime.UtcNow
         };
 
-        unitOfWork.OutboxRepository.Add(auditOutbox);
         unitOfWork.CoversRepository.Add(cover);
+        unitOfWork.OutboxRepository.Add(auditOutbox);
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
 

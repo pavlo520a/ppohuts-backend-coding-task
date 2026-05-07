@@ -33,8 +33,8 @@ public sealed class CreateClaimUseCase(
             OccurredAtUtc = DateTime.UtcNow
         };
 
-        unitOfWork.OutboxRepository.Add(auditOutbox);
         unitOfWork.ClaimsRepository.Add(claim);
+        unitOfWork.OutboxRepository.Add(auditOutbox);
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
