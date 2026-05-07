@@ -2,7 +2,6 @@ using Claims.Application.Abstractions;
 using Claims.Application.Abstractions.Formulas;
 using Claims.Application.Commands.Covers;
 using Claims.Data.Abstractions;
-using Claims.Data.Abstractions.Repositories;
 using Claims.Domain.Models;
 using Claims.Domain.Models.Formulas;
 using FluentValidation;
