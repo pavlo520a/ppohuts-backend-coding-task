@@ -4,6 +4,7 @@ using Claims.IntegrationTests.Infrastructure;
 using Claims.IntegrationTests.Infrastructure.Constants;
 using Claims.IntegrationTests.Infrastructure.Factories;
 using Claims.IntegrationTests.Infrastructure.Hosting;
+using Microsoft.Extensions.Configuration;
 using System.Net;
 using System.Net.Http.Json;
 
@@ -21,9 +22,9 @@ public sealed class ClaimsControllerTests : IntegrationTestBase
         var firstClaimName = "Claim one";
         var secondClaimName = "Claim two";
 
-        await Factory.DataStore.SeedCoverAsync(TestDocumentFactory.CreateCoverDocument(coverId));
-        await Factory.DataStore.SeedClaimAsync(TestDocumentFactory.CreateClaimDocument(firstClaimId, coverId, name: firstClaimName));
-        await Factory.DataStore.SeedClaimAsync(TestDocumentFactory.CreateClaimDocument(secondClaimId, coverId, name: secondClaimName));
+        await DataStore.SeedCoverAsync(TestDocumentFactory.CreateCoverDocument(coverId));
+        await DataStore.SeedClaimAsync(TestDocumentFactory.CreateClaimDocument(firstClaimId, coverId, name: firstClaimName));
+        await DataStore.SeedClaimAsync(TestDocumentFactory.CreateClaimDocument(secondClaimId, coverId, name: secondClaimName));
 
         // Act
         var response = await Client.GetAsync(TestConstants.Routes.Claims, TestContext.Current.CancellationToken);
@@ -46,8 +47,8 @@ public sealed class ClaimsControllerTests : IntegrationTestBase
         var claimId = Guid.NewGuid().ToString();
         var claimName = "Lookup claim";
 
-        await Factory.DataStore.SeedCoverAsync(TestDocumentFactory.CreateCoverDocument(coverId));
-        await Factory.DataStore.SeedClaimAsync(TestDocumentFactory.CreateClaimDocument(claimId, coverId, name: claimName));
+        await DataStore.SeedCoverAsync(TestDocumentFactory.CreateCoverDocument(coverId));
+        await DataStore.SeedClaimAsync(TestDocumentFactory.CreateClaimDocument(claimId, coverId, name: claimName));
 
         // Act
         var response = await Client.GetAsync($"{TestConstants.Routes.Claims}/{claimId}", TestContext.Current.CancellationToken);
@@ -80,7 +81,7 @@ public sealed class ClaimsControllerTests : IntegrationTestBase
         // Arrange
         var coverId = Guid.NewGuid().ToString();
 
-        await Factory.DataStore.SeedCoverAsync(TestDocumentFactory.CreateCoverDocument(coverId));
+        await DataStore.SeedCoverAsync(TestDocumentFactory.CreateCoverDocument(coverId));
 
         var request = TestDataFactory.CreateClaimRequest(
             coverId: coverId,
@@ -101,7 +102,7 @@ public sealed class ClaimsControllerTests : IntegrationTestBase
         Assert.Equal(coverId, created.CoverId);
         Assert.Equal(ClaimType.Fire, created.Type);
 
-        var outboxMessages = await Factory.DataStore.GetOutboxMessagesAsync();
+        var outboxMessages = await DataStore.GetOutboxMessagesAsync();
 
         Assert.Single(outboxMessages);
         Assert.Equal(OutboxMessageStatus.Pending, outboxMessages.Single().Status);
@@ -151,11 +152,11 @@ public sealed class ClaimsControllerTests : IntegrationTestBase
     {
         // Arrange
         var coverId = Guid.NewGuid().ToString();
-        await Factory.DataStore.SeedCoverAsync(TestDocumentFactory.CreateCoverDocument(coverId));
+        await DataStore.SeedCoverAsync(TestDocumentFactory.CreateCoverDocument(coverId));
 
         var request = TestDataFactory.CreateClaimRequest(
             coverId: coverId,
-            damageCost: Factory.Validation.MaxClaimDamageCost + 1m);
+            damageCost: Configuration.GetValue<decimal>("ValidationRules:Claims:MaxDamageCost") + 1m);
 
         // Act
         var response = await Client.PostAsJsonAsync(
@@ -180,7 +181,7 @@ public sealed class ClaimsControllerTests : IntegrationTestBase
             startDate: DateTime.UtcNow.Date.AddDays(10),
             endDate: DateTime.UtcNow.Date.AddDays(20));
 
-        await Factory.DataStore.SeedCoverAsync(cover);
+        await DataStore.SeedCoverAsync(cover);
 
         var request = TestDataFactory.CreateClaimRequest(
             coverId: coverId,
@@ -206,8 +207,8 @@ public sealed class ClaimsControllerTests : IntegrationTestBase
         var coverId = Guid.NewGuid().ToString();
         var claimId = Guid.NewGuid().ToString();
 
-        await Factory.DataStore.SeedCoverAsync(TestDocumentFactory.CreateCoverDocument(coverId));
-        await Factory.DataStore.SeedClaimAsync(TestDocumentFactory.CreateClaimDocument(claimId, coverId));
+        await DataStore.SeedCoverAsync(TestDocumentFactory.CreateCoverDocument(coverId));
+        await DataStore.SeedClaimAsync(TestDocumentFactory.CreateClaimDocument(claimId, coverId));
 
         // Act
         var response = await Client.DeleteAsync($"{TestConstants.Routes.Claims}/{claimId}", TestContext.Current.CancellationToken);
@@ -215,11 +216,11 @@ public sealed class ClaimsControllerTests : IntegrationTestBase
         // Assert
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
 
-        var claimExists = await Factory.DataStore.ClaimExistsAsync(claimId);
+        var claimExists = await DataStore.ClaimExistsAsync(claimId);
 
         Assert.False(claimExists);
 
-        var outboxMessages = await Factory.DataStore.GetOutboxMessagesAsync();
+        var outboxMessages = await DataStore.GetOutboxMessagesAsync();
 
         Assert.Single(outboxMessages);
         Assert.Equal(OutboxMessageStatus.Pending, outboxMessages.Single().Status);
