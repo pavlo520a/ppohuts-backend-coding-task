@@ -1,10 +1,13 @@
 using Claims.ApiModels.Claims;
 using Claims.Domain.Enums;
 using Claims.IntegrationTests.Infrastructure;
+using Claims.IntegrationTests.Infrastructure.Constants;
+using Claims.IntegrationTests.Infrastructure.Factories;
+using Claims.IntegrationTests.Infrastructure.Hosting;
 using System.Net;
 using System.Net.Http.Json;
 
-namespace Claims.IntegrationTests;
+namespace Claims.IntegrationTests.Controllers;
 
 public sealed class ClaimsControllerTests : IntegrationTestBase
 {
@@ -15,13 +18,15 @@ public sealed class ClaimsControllerTests : IntegrationTestBase
         var coverId = Guid.NewGuid().ToString();
         var firstClaimId = Guid.NewGuid().ToString();
         var secondClaimId = Guid.NewGuid().ToString();
+        var firstClaimName = "Claim one";
+        var secondClaimName = "Claim two";
 
-        await SeedCoverAsync(CreateCoverDocument(coverId));
-        await SeedClaimAsync(CreateClaimDocument(firstClaimId, coverId, name: "Claim one"));
-        await SeedClaimAsync(CreateClaimDocument(secondClaimId, coverId, name: "Claim two"));
+        await Factory.DataStore.SeedCoverAsync(TestDocumentFactory.CreateCoverDocument(coverId));
+        await Factory.DataStore.SeedClaimAsync(TestDocumentFactory.CreateClaimDocument(firstClaimId, coverId, name: firstClaimName));
+        await Factory.DataStore.SeedClaimAsync(TestDocumentFactory.CreateClaimDocument(secondClaimId, coverId, name: secondClaimName));
 
         // Act
-        var response = await Client.GetAsync("/claims", TestContext.Current.CancellationToken);
+        var response = await Client.GetAsync(TestConstants.Routes.Claims, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -39,12 +44,13 @@ public sealed class ClaimsControllerTests : IntegrationTestBase
         // Arrange
         var coverId = Guid.NewGuid().ToString();
         var claimId = Guid.NewGuid().ToString();
+        var claimName = "Lookup claim";
 
-        await SeedCoverAsync(CreateCoverDocument(coverId));
-        await SeedClaimAsync(CreateClaimDocument(claimId, coverId, name: "Lookup claim"));
+        await Factory.DataStore.SeedCoverAsync(TestDocumentFactory.CreateCoverDocument(coverId));
+        await Factory.DataStore.SeedClaimAsync(TestDocumentFactory.CreateClaimDocument(claimId, coverId, name: claimName));
 
         // Act
-        var response = await Client.GetAsync($"/claims/{claimId}", TestContext.Current.CancellationToken);
+        var response = await Client.GetAsync($"{TestConstants.Routes.Claims}/{claimId}", TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -52,7 +58,7 @@ public sealed class ClaimsControllerTests : IntegrationTestBase
         var claim = await response.ReadAsAsync<ClaimResponse>();
 
         Assert.Equal(claimId, claim.Id);
-        Assert.Equal("Lookup claim", claim.Name);
+        Assert.Equal(claimName, claim.Name);
     }
 
     [Fact]
@@ -62,7 +68,7 @@ public sealed class ClaimsControllerTests : IntegrationTestBase
         var missingId = Guid.NewGuid().ToString();
 
         // Act
-        var response = await Client.GetAsync($"/claims/{missingId}", TestContext.Current.CancellationToken);
+        var response = await Client.GetAsync($"{TestConstants.Routes.Claims}/{missingId}", TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
@@ -74,16 +80,16 @@ public sealed class ClaimsControllerTests : IntegrationTestBase
         // Arrange
         var coverId = Guid.NewGuid().ToString();
 
-        await SeedCoverAsync(CreateCoverDocument(coverId));
+        await Factory.DataStore.SeedCoverAsync(TestDocumentFactory.CreateCoverDocument(coverId));
 
-        var request = TestDataFactory.CreateValidClaimRequest(
+        var request = TestDataFactory.CreateClaimRequest(
             coverId: coverId,
             created: DateTime.UtcNow.Date.AddDays(2),
             type: ClaimType.Fire);
 
         // Act
         var response = await Client.PostAsJsonAsync(
-            "/claims",
+            TestConstants.Routes.Claims,
             request,
             TestContext.Current.CancellationToken);
 
@@ -95,7 +101,7 @@ public sealed class ClaimsControllerTests : IntegrationTestBase
         Assert.Equal(coverId, created.CoverId);
         Assert.Equal(ClaimType.Fire, created.Type);
 
-        var outboxMessages = await GetOutboxMessagesAsync();
+        var outboxMessages = await Factory.DataStore.GetOutboxMessagesAsync();
 
         Assert.Single(outboxMessages);
         Assert.Equal(OutboxMessageStatus.Pending, outboxMessages.Single().Status);
@@ -107,13 +113,13 @@ public sealed class ClaimsControllerTests : IntegrationTestBase
         // Arrange
         var missingCoverId = Guid.NewGuid().ToString();
 
-        var request = TestDataFactory.CreateValidClaimRequest(
+        var request = TestDataFactory.CreateClaimRequest(
             coverId: missingCoverId,
             created: DateTime.UtcNow.Date.AddDays(2));
 
         // Act
         var response = await Client.PostAsJsonAsync(
-            "/claims",
+            TestConstants.Routes.Claims,
             request,
             TestContext.Current.CancellationToken);
 
@@ -125,26 +131,95 @@ public sealed class ClaimsControllerTests : IntegrationTestBase
     }
 
     [Fact]
+    public async Task CreateAsync_Should_ReturnBadRequest_WhenCoverIdIsEmpty()
+    {
+        // Arrange
+        var request = TestDataFactory.CreateClaimRequest(coverId: string.Empty);
+
+        // Act
+        var response = await Client.PostAsJsonAsync(
+            TestConstants.Routes.Claims,
+            request,
+            TestContext.Current.CancellationToken);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task CreateAsync_Should_ReturnBadRequest_WhenDamageCostExceedsMaxRule()
+    {
+        // Arrange
+        var coverId = Guid.NewGuid().ToString();
+        await Factory.DataStore.SeedCoverAsync(TestDocumentFactory.CreateCoverDocument(coverId));
+
+        var request = TestDataFactory.CreateClaimRequest(
+            coverId: coverId,
+            damageCost: TestConstants.Validation.MaxClaimDamageCost + 1m);
+
+        // Act
+        var response = await Client.PostAsJsonAsync(
+            TestConstants.Routes.Claims,
+            request,
+            TestContext.Current.CancellationToken);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+
+        var payload = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        Assert.Contains("DamageCost cannot exceed", payload);
+    }
+
+    [Fact]
+    public async Task CreateAsync_Should_ReturnBadRequest_WhenCreatedDateOutsideCoverPeriod()
+    {
+        // Arrange
+        var coverId = Guid.NewGuid().ToString();
+        var cover = TestDocumentFactory.CreateCoverDocument(
+            coverId,
+            startDate: DateTime.UtcNow.Date.AddDays(10),
+            endDate: DateTime.UtcNow.Date.AddDays(20));
+
+        await Factory.DataStore.SeedCoverAsync(cover);
+
+        var request = TestDataFactory.CreateClaimRequest(
+            coverId: coverId,
+            created: DateTime.UtcNow.Date.AddDays(5));
+
+        // Act
+        var response = await Client.PostAsJsonAsync(
+            TestConstants.Routes.Claims,
+            request,
+            TestContext.Current.CancellationToken);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+
+        var payload = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        Assert.Contains("Created date must be within the period of the related cover.", payload);
+    }
+
+    [Fact]
     public async Task DeleteAsync_Should_RemoveClaimAndCreateOutboxMessage_WhenClaimExists()
     {
         // Arrange
         var coverId = Guid.NewGuid().ToString();
         var claimId = Guid.NewGuid().ToString();
 
-        await SeedCoverAsync(CreateCoverDocument(coverId));
-        await SeedClaimAsync(CreateClaimDocument(claimId, coverId));
+        await Factory.DataStore.SeedCoverAsync(TestDocumentFactory.CreateCoverDocument(coverId));
+        await Factory.DataStore.SeedClaimAsync(TestDocumentFactory.CreateClaimDocument(claimId, coverId));
 
         // Act
-        var response = await Client.DeleteAsync($"/claims/{claimId}", TestContext.Current.CancellationToken);
+        var response = await Client.DeleteAsync($"{TestConstants.Routes.Claims}/{claimId}", TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
 
-        var claimExists = await ClaimExistsAsync(claimId);
+        var claimExists = await Factory.DataStore.ClaimExistsAsync(claimId);
 
         Assert.False(claimExists);
 
-        var outboxMessages = await GetOutboxMessagesAsync();
+        var outboxMessages = await Factory.DataStore.GetOutboxMessagesAsync();
 
         Assert.Single(outboxMessages);
         Assert.Equal(OutboxMessageStatus.Pending, outboxMessages.Single().Status);

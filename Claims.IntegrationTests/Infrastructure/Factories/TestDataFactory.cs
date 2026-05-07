@@ -3,7 +3,7 @@ using Claims.ApiModels.Covers;
 using Claims.ApiModels.Formulas;
 using Claims.Domain.Enums;
 
-namespace Claims.IntegrationTests.Infrastructure;
+namespace Claims.IntegrationTests.Infrastructure.Factories;
 
 public static class TestDataFactory
 {
@@ -23,18 +23,20 @@ public static class TestDataFactory
         };
     }
 
-    public static CreateClaimRequest CreateValidClaimRequest(
+    public static CreateClaimRequest CreateClaimRequest(
         string coverId,
         DateTime? created = null,
-        ClaimType type = ClaimType.Collision)
+        ClaimType type = ClaimType.Collision,
+        decimal damageCost = 1000m,
+        string? name = null)
     {
         return new CreateClaimRequest
         {
             CoverId = coverId,
             Created = created ?? DateTime.UtcNow.Date.AddDays(1),
-            Name = "Test claim",
+            Name = name ?? "Test claim",
             Type = type,
-            DamageCost = 1000m
+            DamageCost = damageCost
         };
     }
 

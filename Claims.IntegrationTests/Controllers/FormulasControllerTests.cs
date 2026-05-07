@@ -1,10 +1,13 @@
 using Claims.ApiModels.Formulas;
 using Claims.Domain.Enums;
 using Claims.IntegrationTests.Infrastructure;
+using Claims.IntegrationTests.Infrastructure.Constants;
+using Claims.IntegrationTests.Infrastructure.Factories;
+using Claims.IntegrationTests.Infrastructure.Hosting;
 using System.Net;
 using System.Net.Http.Json;
 
-namespace Claims.IntegrationTests;
+namespace Claims.IntegrationTests.Controllers;
 
 public sealed class FormulasControllerTests : IntegrationTestBase
 {
@@ -19,7 +22,7 @@ public sealed class FormulasControllerTests : IntegrationTestBase
 
         // Act
         var response = await Client.PostAsJsonAsync(
-            "/formulas/cover/premium",
+            TestConstants.Routes.ComputePremium,
             request,
             TestContext.Current.CancellationToken);
 
@@ -41,7 +44,7 @@ public sealed class FormulasControllerTests : IntegrationTestBase
 
         // Act
         var response = await Client.PostAsJsonAsync(
-            "/formulas/cover/premium",
+            TestConstants.Routes.ComputePremium,
             request,
             TestContext.Current.CancellationToken);
 

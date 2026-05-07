@@ -1,4 +1,5 @@
 using Claims.Application.Abstractions.Services;
+using Claims.IntegrationTests.Infrastructure.Data;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
@@ -6,10 +7,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 
-namespace Claims.IntegrationTests.Infrastructure;
+namespace Claims.IntegrationTests.Infrastructure.Hosting;
 
 public sealed class ClaimsWebApplicationFactory : WebApplicationFactory<Program>
 {
+    public ClaimsMongoTestStore DataStore => Services.GetRequiredService<ClaimsMongoTestStore>();
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseEnvironment("Development");
@@ -32,39 +35,19 @@ public sealed class ClaimsWebApplicationFactory : WebApplicationFactory<Program>
 
     public async Task ResetDatabaseAsync()
     {
-        await using var scope = Services.CreateAsyncScope();
-        var stateManager = scope.ServiceProvider.GetRequiredService<DatabaseStateManager>();
-        await stateManager.ResetAsync();
+        await DataStore.ResetAsync();
     }
 
     protected override IHost CreateHost(IHostBuilder builder)
     {
         builder.ConfigureServices(services =>
         {
-            services.AddScoped<DatabaseStateManager>();
+            services.AddSingleton<ClaimsMongoTestStore>();
         });
 
         return base.CreateHost(builder);
     }
 
     private static string GetIntegrationSettingsPath()
-    {
-        var outputPath = Path.Combine(AppContext.BaseDirectory, "appsettings.IntegrationTests.json");
-        
-        if (File.Exists(outputPath))
-        {
-            return outputPath;
-        }
-
-        var projectPath = Path.GetFullPath(Path.Combine(
-            AppContext.BaseDirectory,
-            "..",
-            "..",
-            "..",
-            "..",
-            "appsettings.IntegrationTests.json"));
-
-        return projectPath;
-    }
-
+        => Path.Combine(AppContext.BaseDirectory, "appsettings.IntegrationTests.json");
 }
