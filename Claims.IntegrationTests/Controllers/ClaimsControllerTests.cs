@@ -155,7 +155,7 @@ public sealed class ClaimsControllerTests : IntegrationTestBase
 
         var request = TestDataFactory.CreateClaimRequest(
             coverId: coverId,
-            damageCost: TestConstants.Validation.MaxClaimDamageCost + 1m);
+            damageCost: Factory.Validation.MaxClaimDamageCost + 1m);
 
         // Act
         var response = await Client.PostAsJsonAsync(

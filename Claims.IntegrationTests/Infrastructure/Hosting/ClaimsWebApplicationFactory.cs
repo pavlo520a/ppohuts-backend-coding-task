@@ -12,6 +12,12 @@ namespace Claims.IntegrationTests.Infrastructure.Hosting;
 public sealed class ClaimsWebApplicationFactory : WebApplicationFactory<Program>
 {
     public ClaimsMongoTestStore DataStore => Services.GetRequiredService<ClaimsMongoTestStore>();
+    public ValidationSettings Validation { get; }
+
+    public ClaimsWebApplicationFactory()
+    {
+        Validation = new ValidationSettings(this);
+    }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
@@ -50,4 +56,16 @@ public sealed class ClaimsWebApplicationFactory : WebApplicationFactory<Program>
 
     private static string GetIntegrationSettingsPath()
         => Path.Combine(AppContext.BaseDirectory, "appsettings.IntegrationTests.json");
+
+    public sealed class ValidationSettings(
+        ClaimsWebApplicationFactory factory)
+    {
+        public decimal MaxClaimDamageCost =>
+            factory.Services.GetRequiredService<IConfiguration>()
+                .GetValue<decimal>("ValidationRules:Claims:MaxDamageCost");
+
+        public int MaxCoverInsurancePeriodYears =>
+            factory.Services.GetRequiredService<IConfiguration>()
+                .GetValue<int>("ValidationRules:Covers:MaxInsurancePeriodYears");
+    }
 }

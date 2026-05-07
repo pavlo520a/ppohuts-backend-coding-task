@@ -9,9 +9,4 @@ public static class TestConstants
         public const string ComputePremium = "/formulas/cover/premium";
     }
 
-    public static class Validation
-    {
-        public const decimal MaxClaimDamageCost = 100000m;
-        public const int MaxCoverInsurancePeriodYears = 1;
-    }
 }

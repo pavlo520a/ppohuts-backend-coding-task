@@ -20,6 +20,8 @@ public sealed class FormulasControllerTests : IntegrationTestBase
             endDate: DateTime.UtcNow.Date.AddDays(10),
             type: CoverType.Tanker);
 
+        var expectedPremium = 18750m;
+
         // Act
         var response = await Client.PostAsJsonAsync(
             TestConstants.Routes.ComputePremium,
@@ -30,7 +32,7 @@ public sealed class FormulasControllerTests : IntegrationTestBase
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
         var premium = await response.ReadAsAsync<ComputePremiumResponse>();
-        Assert.True(premium.Amount > 0m);
+        Assert.Equal(expectedPremium, premium.Amount);
     }
 
     [Fact]
@@ -53,5 +55,29 @@ public sealed class FormulasControllerTests : IntegrationTestBase
 
         var premium = await response.ReadAsAsync<ComputePremiumResponse>();
         Assert.Equal(0m, premium.Amount);
+    }
+
+    [Fact]
+    public async Task ComputePremiumAsync_Should_ApplyDiscountRules_WhenDurationSpansMultipleRanges()
+    {
+        // Arrange
+        var request = TestDataFactory.CreateValidPremiumRequest(
+            startDate: DateTime.UtcNow.Date.AddDays(1),
+            endDate: DateTime.UtcNow.Date.AddDays(40),
+            type: CoverType.Yacht);
+
+        var expectedPremium = 54312.5m;
+
+        // Act
+        var response = await Client.PostAsJsonAsync(
+            TestConstants.Routes.ComputePremium,
+            request,
+            TestContext.Current.CancellationToken);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        var premium = await response.ReadAsAsync<ComputePremiumResponse>();
+        Assert.Equal(expectedPremium, premium.Amount);
     }
 }

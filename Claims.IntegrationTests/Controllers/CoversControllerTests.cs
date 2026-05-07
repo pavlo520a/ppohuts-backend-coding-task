@@ -145,7 +145,7 @@ public sealed class CoversControllerTests : IntegrationTestBase
         var startDate = DateTime.UtcNow.Date.AddDays(1);
         var request = TestDataFactory.CreateValidCoverRequest(
             startDate: startDate,
-            endDate: startDate.AddYears(TestConstants.Validation.MaxCoverInsurancePeriodYears));
+            endDate: startDate.AddYears(Factory.Validation.MaxCoverInsurancePeriodYears));
 
         // Act
         var response = await Client.PostAsJsonAsync(
