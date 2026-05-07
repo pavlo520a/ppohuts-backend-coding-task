@@ -1,6 +1,6 @@
 using Claims.Application.Commands.Claims;
 using Claims.Application.Options;
-using Claims.Data.Abstractions.Repositories;
+using Claims.Data.Abstractions.Queries;
 using FluentValidation;
 using Microsoft.Extensions.Options;
 
@@ -9,7 +9,7 @@ namespace Claims.Application.Validation.Claims;
 public sealed class CreateClaimCommandValidator : AbstractValidator<CreateClaimCommand>
 {
     public CreateClaimCommandValidator(
-        ICoverRepository coverRepository,
+        ICoverQuery coverQuery,
         IOptions<ValidationRulesOptions> options)
     {
         var rules = options.Value;
@@ -24,7 +24,7 @@ public sealed class CreateClaimCommandValidator : AbstractValidator<CreateClaimC
         RuleFor(x => x)
             .CustomAsync(async (command, context, cancellationToken) =>
             {
-                var cover = await coverRepository.GetByIdAsync(command.CoverId, cancellationToken);
+                var cover = await coverQuery.GetByIdAsync(command.CoverId, cancellationToken);
                 
                 if (cover is null)
                 {

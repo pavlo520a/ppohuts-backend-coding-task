@@ -1,6 +1,8 @@
+using Claims.Application.Abstractions;
+
 namespace Claims.Application.Commands.Covers;
 
-public record DeleteCoverCommand
+public record DeleteCoverCommand : ICommand
 {
     public required string Id { get; init; }
 

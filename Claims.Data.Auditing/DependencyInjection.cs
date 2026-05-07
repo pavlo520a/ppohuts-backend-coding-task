@@ -11,6 +11,12 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddAuditing(this IServiceCollection services)
     {
+        services
+            .AddOptions<SqlServerOptions>()
+            .BindConfiguration(SqlServerOptions.SectionName)
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
         services.AddDbContext<AuditContext>((serviceProvider, options) =>
         {
             var sqlServerOptions = serviceProvider.GetRequiredService<IOptions<SqlServerOptions>>().Value;

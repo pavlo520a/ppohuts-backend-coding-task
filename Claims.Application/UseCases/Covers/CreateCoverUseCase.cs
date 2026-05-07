@@ -1,8 +1,8 @@
 using Claims.Application.Abstractions;
 using Claims.Application.Abstractions.Formulas;
 using Claims.Application.Commands.Covers;
+using Claims.Data.Abstractions;
 using Claims.Data.Abstractions.Repositories;
-using Claims.Data.Auditing.Abstractions.Repositories;
 using Claims.Domain.Models;
 using Claims.Domain.Models.Formulas;
 using FluentValidation;
@@ -10,8 +10,7 @@ using FluentValidation;
 namespace Claims.Application.UseCases.Covers;
 
 public sealed class CreateCoverUseCase(
-    ICoverRepository coverRepository,
-    ICoverAuditTrailRepository coverAuditTrailRepository,
+    IUnitOfWork unitOfWork,
     IFormula<CoverPremiumFormulaArgs> premiumFormula,
     IValidator<CreateCoverCommand> validator) : IUseCase<CreateCoverCommand, Cover>
 {
@@ -35,8 +34,19 @@ public sealed class CreateCoverUseCase(
             Premium = premiumFormula.Calculate(formulaArgs)
         };
 
-        await coverRepository.AddAsync(cover, cancellationToken);
-        await coverAuditTrailRepository.WriteAsync(cover.Id, command.HttpMethod, cancellationToken);
+        var auditOutbox = new AuditOutbox
+        {
+            EntityType = nameof(Cover),
+            EntityId = cover.Id,
+            HttpMethod = command.HttpMethod,
+            OccurredAtUtc = DateTime.UtcNow
+        };
+
+        unitOfWork.CoversRepository.Add(cover);
+        unitOfWork.OutboxRepository.Add(auditOutbox);
+
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+
         return cover;
     }
 }

@@ -2,5 +2,7 @@ namespace Claims.Data.Auditing.Abstractions.Repositories;
 
 public interface ICoverAuditTrailRepository
 {
-    Task WriteAsync(string coverId, string httpMethod, CancellationToken cancellationToken);
+    Task<bool> AnyAsync(string coverId, string httpMethod, CancellationToken cancellationToken);
+
+    Task AddAsync(string coverId, string httpMethod, CancellationToken cancellationToken);
 }

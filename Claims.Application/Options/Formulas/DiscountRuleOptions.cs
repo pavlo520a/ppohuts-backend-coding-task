@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Claims.Application.Options.Formulas;
 
-public sealed class DiscountRuleOptions
+public class DiscountRuleOptions
 {
     [Range(0, 1)]
     public decimal YachtDiscount { get; init; }

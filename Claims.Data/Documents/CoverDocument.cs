@@ -1,13 +1,9 @@
 using Claims.Domain.Enums;
-using MongoDB.Bson.Serialization.Attributes;
 
 namespace Claims.Data.Documents;
 
-public class CoverDocument
+public class CoverDocument : BaseDocument
 {
-    [BsonId]
-    public required string Id { get; set; }
-
     public DateOnly StartDate { get; set; }
 
     public DateOnly EndDate { get; set; }

@@ -1,8 +1,9 @@
+using Claims.Application.Abstractions;
 using Claims.Domain.Enums;
 
 namespace Claims.Application.Commands.Claims;
 
-public record CreateClaimCommand
+public record CreateClaimCommand : ICommand
 {
     public required string CoverId { get; init; }
 

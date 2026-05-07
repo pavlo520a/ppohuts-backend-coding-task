@@ -1,6 +1,8 @@
+using Claims.Application.Abstractions;
+
 namespace Claims.Application.Commands.Claims;
 
-public record DeleteClaimCommand
+public record DeleteClaimCommand : ICommand
 {
     public required string Id { get; init; }
 

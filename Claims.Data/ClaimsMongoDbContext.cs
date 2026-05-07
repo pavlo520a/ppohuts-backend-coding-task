@@ -11,6 +11,8 @@ public class ClaimsMongoDbContext(DbContextOptions<ClaimsMongoDbContext> options
 
     public DbSet<CoverDocument> Covers => Set<CoverDocument>();
 
+    public DbSet<OutboxMessageDocument> OutboxMessages => Set<OutboxMessageDocument>();
+
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {
         configurationBuilder.Conventions.Add(_ => new CamelCaseElementNameConvention());
@@ -27,5 +29,9 @@ public class ClaimsMongoDbContext(DbContextOptions<ClaimsMongoDbContext> options
         modelBuilder
             .Entity<CoverDocument>()
             .ToCollection("covers");
+
+        modelBuilder
+            .Entity<OutboxMessageDocument>()
+            .ToCollection("outbox_messages");
     }
 }
