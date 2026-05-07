@@ -1,7 +1,6 @@
 using Claims.Application.Abstractions;
 using Claims.Application.Commands.Claims;
 using Claims.Data.Abstractions;
-using Claims.Data.Abstractions.Repositories;
 using Claims.Domain.Models;
 
 namespace Claims.Application.UseCases.Claims;

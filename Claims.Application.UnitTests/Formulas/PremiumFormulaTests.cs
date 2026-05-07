@@ -1,159 +1,221 @@
+using AutoFixture;
+using AutoFixture.AutoNSubstitute;
 using Claims.Application.Formulas;
 using Claims.Application.Options.Formulas;
+using Claims.Application.UnitTests.Factories;
 using Claims.Domain.Enums;
 using Claims.Domain.Models.Formulas;
-using Microsoft.Extensions.Options;
 
 namespace Claims.Application.UnitTests.Formulas;
 
 public sealed class PremiumFormulaTests
 {
     private static readonly DateTime StartDate = new(2026, 1, 1);
-    private readonly PremiumFormula formula = new(CreatePricingOptions());
+    private readonly Fixture _fixture = new();
 
-    [Theory]
-    [InlineData(CoverType.Yacht, 1375)]
-    [InlineData(CoverType.PassengerShip, 1500)]
-    [InlineData(CoverType.Tanker, 1875)]
-    [InlineData(CoverType.ContainerShip, 1625)]
-    public void Calculate_AppliesTypeMultiplier_ForSingleInclusiveDay(CoverType coverType, decimal expected)
+    public PremiumFormulaTests()
     {
-        var premium = formula.Calculate(CreateArgs(coverType, StartDate, StartDate));
-
-        Assert.Equal(expected, premium);
-    }
-
-    [Fact]
-    public void Calculate_ComputesFirst30Days_WithoutDiscount()
-    {
-        var premium = formula.Calculate(CreateArgs(CoverType.Yacht, StartDate, StartDate.AddDays(29)));
-
-        Assert.Equal(41250m, premium);
-    }
-
-    [Fact]
-    public void Calculate_ComputesDay31_WithSecondTierDiscountForYacht()
-    {
-        var premium = formula.Calculate(CreateArgs(CoverType.Yacht, StartDate, StartDate.AddDays(30)));
-
-        Assert.Equal(42556.25m, premium);
-    }
-
-    [Fact]
-    public void Calculate_Computes180Days_WithSecondTierDiscountForNonYacht()
-    {
-        var premium = formula.Calculate(CreateArgs(CoverType.ContainerShip, StartDate, StartDate.AddDays(179)));
-
-        Assert.Equal(287625m, premium);
-    }
-
-    [Fact]
-    public void Calculate_Computes181Days_WithThirdTierDiscountForNonYacht()
-    {
-        var premium = formula.Calculate(CreateArgs(CoverType.ContainerShip, StartDate, StartDate.AddDays(180)));
-
-        Assert.Equal(289201.25m, premium);
-    }
-
-    [Fact]
-    public void Calculate_AppliesThirdTierBeyond365Days()
-    {
-        var premium = formula.Calculate(CreateArgs(CoverType.Yacht, StartDate, StartDate.AddDays(499)));
-
-        Assert.Equal(641987.5m, premium);
-    }
-
-    [Fact]
-    public void Calculate_ReturnsZero_WhenEndDateIsBeforeStartDate()
-    {
-        var premium = formula.Calculate(CreateArgs(CoverType.Yacht, StartDate, StartDate.AddDays(-1)));
-
-        Assert.Equal(0m, premium);
-    }
-
-    [Fact]
-    public void Calculate_UsesRemainingRule_WhenDayRangeDiscountRulesAreEmpty()
-    {
-        var options = Microsoft.Extensions.Options.Options.Create(new PremiumPricingOptions
+        _fixture.Customize(new AutoNSubstituteCustomization
         {
-            BaseDayRate = 1250m,
-            TypeMultipliers = new PremiumTypeMultipliersOptions
-            {
-                Yacht = 1.1m,
-                PassengerShip = 1.2m,
-                Tanker = 1.5m,
-                Other = 1.3m
-            },
-            DiscountRules = new PremiumPricingDiscountRulesOptions
-            {
-                DayRangeDiscountRules = [],
-                Remaining = new DiscountRuleOptions
-                {
-                    YachtDiscount = 0.08m,
-                    OtherDiscount = 0.03m
-                }
-            }
+            ConfigureMembers = true
         });
-        var localFormula = new PremiumFormula(options);
-
-        var premium = localFormula.Calculate(CreateArgs(CoverType.Yacht, StartDate, StartDate.AddDays(29)));
-
-        Assert.Equal(37950m, premium);
     }
 
-    private static CoverPremiumFormulaArgs CreateArgs(CoverType coverType, DateTime startDate, DateTime endDate)
+    [Fact]
+    public void Calculate_Should_ApplyYachtMultiplier_ForSingleInclusiveDay()
     {
-        return new CoverPremiumFormulaArgs
-        {
-            CoverType = coverType,
-            StartDate = startDate,
-            EndDate = endDate
-        };
+        // Arrange
+        var expectedPremium = 1375m;
+
+        var sut = CreateSut();
+        var formulaArgs = CreateArgs(CoverType.Yacht, StartDate, StartDate);
+
+        // Act
+        var premium = sut.Calculate(formulaArgs);
+
+        // Assert
+        Assert.Equal(expectedPremium, premium);
     }
 
-    private static IOptions<PremiumPricingOptions> CreatePricingOptions()
+    [Fact]
+    public void Calculate_Should_ApplyPassengerShipMultiplier_ForSingleInclusiveDay()
     {
-        return Microsoft.Extensions.Options.Options.Create(new PremiumPricingOptions
-        {
-            BaseDayRate = 1250m,
-            TypeMultipliers = new PremiumTypeMultipliersOptions
-            {
-                Yacht = 1.1m,
-                PassengerShip = 1.2m,
-                Tanker = 1.5m,
-                Other = 1.3m
-            },
-            DiscountRules = new PremiumPricingDiscountRulesOptions
-            {
-                DayRangeDiscountRules =
-                [
-                    new DayRangeDiscountRuleOptions
-                    {
-                        Days = new DayRangeOptions
-                        {
-                            From = 1,
-                            To = 30
-                        },
-                        YachtDiscount = 0m,
-                        OtherDiscount = 0m
-                    },
-                    new DayRangeDiscountRuleOptions
-                    {
-                        Days = new DayRangeOptions
-                        {
-                            From = 31,
-                            To = 180
-                        },
-                        YachtDiscount = 0.05m,
-                        OtherDiscount = 0.02m
-                    }
-                ],
-                Remaining = new DiscountRuleOptions
-                {
-                    YachtDiscount = 0.08m,
-                    OtherDiscount = 0.03m
-                }
-            }
-        });
+        // Arrange
+        var expectedPremium = 1500m;
+
+        var sut = CreateSut();
+        var formulaArgs = CreateArgs(CoverType.PassengerShip, StartDate, StartDate);
+
+        // Act
+        var premium = sut.Calculate(formulaArgs);
+
+        // Assert
+        Assert.Equal(expectedPremium, premium);
+    }
+
+    [Fact]
+    public void Calculate_Should_ApplyTankerMultiplier_ForSingleInclusiveDay()
+    {
+        // Arrange
+        var expectedPremium = 1875m;
+
+        var sut = CreateSut();
+        var formulaArgs = CreateArgs(CoverType.Tanker, StartDate, StartDate);
+
+        // Act
+        var premium = sut.Calculate(formulaArgs);
+
+        // Assert
+        Assert.Equal(expectedPremium, premium);
+    }
+
+    [Fact]
+    public void Calculate_Should_ApplyContainerShipMultiplier_ForSingleInclusiveDay()
+    {
+        // Arrange
+        var expectedPremium = 1625m;
+
+        var sut = CreateSut();
+        var formulaArgs = CreateArgs(CoverType.ContainerShip, StartDate, StartDate);
+
+        // Act
+        var premium = sut.Calculate(formulaArgs);
+
+        // Assert
+        Assert.Equal(expectedPremium, premium);
+    }
+
+    [Fact]
+    public void Calculate_Should_ComputeFirst30Days_WithoutDiscount()
+    {
+        // Arrange
+        var firstTierLastDayOffset = 29;
+        var expectedPremium = 41250m;
+
+        var sut = CreateSut();
+        var formulaArgs = CreateArgs(CoverType.Yacht, StartDate, StartDate.AddDays(firstTierLastDayOffset));
+
+        // Act
+        var premium = sut.Calculate(formulaArgs);
+
+        // Assert
+        Assert.Equal(expectedPremium, premium);
+    }
+
+    [Fact]
+    public void Calculate_Should_ComputeDay31_WithSecondTierDiscountForYacht()
+    {
+        // Arrange
+        var secondTierFirstDayOffset = 30;
+        var expectedPremium = 42556.25m;
+
+        var sut = CreateSut();
+        var formulaArgs = CreateArgs(CoverType.Yacht, StartDate, StartDate.AddDays(secondTierFirstDayOffset));
+
+        // Act
+        var premium = sut.Calculate(formulaArgs);
+
+        // Assert
+        Assert.Equal(expectedPremium, premium);
+    }
+
+    [Fact]
+    public void Calculate_Should_Compute180Days_WithSecondTierDiscountForNonYacht()
+    {
+        // Arrange
+        var secondTierLastDayOffset = 179;
+        var expectedPremium = 287625m;
+
+        var sut = CreateSut();
+        var formulaArgs = CreateArgs(CoverType.ContainerShip, StartDate, StartDate.AddDays(secondTierLastDayOffset));
+
+        // Act
+        var premium = sut.Calculate(formulaArgs);
+
+        // Assert
+        Assert.Equal(expectedPremium, premium);
+    }
+
+    [Fact]
+    public void Calculate_Should_Compute181Days_WithThirdTierDiscountForNonYacht()
+    {
+        // Arrange
+        var remainingTierFirstDayOffset = 180;
+        var expectedPremium = 289201.25m;
+
+        var sut = CreateSut();
+        var formulaArgs = CreateArgs(CoverType.ContainerShip, StartDate, StartDate.AddDays(remainingTierFirstDayOffset));
+
+        // Act
+        var premium = sut.Calculate(formulaArgs);
+
+        // Assert
+        Assert.Equal(expectedPremium, premium);
+    }
+
+    [Fact]
+    public void Calculate_Should_ApplyThirdTierBeyond365Days()
+    {
+        // Arrange
+        var longRangeOffsetDays = 499;
+        var expectedPremium = 641987.5m;
+
+        var sut = CreateSut();
+        var formulaArgs = CreateArgs(CoverType.Yacht, StartDate, StartDate.AddDays(longRangeOffsetDays));
+
+        // Act
+        var premium = sut.Calculate(formulaArgs);
+
+        // Assert
+        Assert.Equal(expectedPremium, premium);
+    }
+
+    [Fact]
+    public void Calculate_Should_ReturnZero_WhenEndDateIsBeforeStartDate()
+    {
+        // Arrange
+        var endBeforeStartOffsetDays = -1;
+        var expectedPremium = 0m;
+
+        var sut = CreateSut();
+        var formulaArgs = CreateArgs(CoverType.Yacht, StartDate, StartDate.AddDays(endBeforeStartOffsetDays));
+
+        // Act
+        var premium = sut.Calculate(formulaArgs);
+
+        // Assert
+        Assert.Equal(expectedPremium, premium);
+    }
+
+    [Fact]
+    public void Calculate_Should_UseRemainingRule_WhenDayRangeDiscountRulesAreEmpty()
+    {
+        // Arrange
+        var firstTierLastDayOffset = 29;
+        var expectedPremium = 37950m;
+
+        var options = PremiumPricingOptionsFactory.CreatePricingOptions(dayRangeDiscountRules: []);
+        var sut = new PremiumFormula(options);
+        var formulaArgs = CreateArgs(CoverType.Yacht, StartDate, StartDate.AddDays(firstTierLastDayOffset));
+
+        // Act
+        var premium = sut.Calculate(formulaArgs);
+
+        // Assert
+        Assert.Equal(expectedPremium, premium);
+    }
+
+    private CoverPremiumFormulaArgs CreateArgs(CoverType coverType, DateTime startDate, DateTime endDate)
+    {
+        return _fixture.Build<CoverPremiumFormulaArgs>()
+            .With(x => x.CoverType, coverType)
+            .With(x => x.StartDate, startDate)
+            .With(x => x.EndDate, endDate)
+            .Create();
+    }
+
+    private static PremiumFormula CreateSut()
+    {
+        return new PremiumFormula(PremiumPricingOptionsFactory.CreatePricingOptions());
     }
 }
