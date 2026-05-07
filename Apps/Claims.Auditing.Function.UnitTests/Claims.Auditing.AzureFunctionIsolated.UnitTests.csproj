@@ -24,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Claims.Application\Claims.Application.csproj" />
+    <ProjectReference Include="..\Claims.Auditing.Function\Claims.Auditing.AzureFunctionIsolated.csproj" />
   </ItemGroup>
 
 </Project>
