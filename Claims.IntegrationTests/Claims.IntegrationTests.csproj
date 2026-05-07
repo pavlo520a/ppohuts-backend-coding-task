@@ -21,4 +21,14 @@
     <ProjectReference Include="..\Claims\Claims.Web.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="appsettings.IntegrationTests.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
 </Project>
