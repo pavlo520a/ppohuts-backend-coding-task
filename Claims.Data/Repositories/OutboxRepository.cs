@@ -8,11 +8,12 @@ namespace Claims.Data.Repositories;
 
 public sealed class OutboxRepository(ClaimsMongoDbContext context) : IOutboxRepository
 {
-    public void Add(BaseAuditOutbox auditOutbox)
+    public void Add<TAuditOutbox>(TAuditOutbox auditOutbox)
+        where TAuditOutbox : BaseAuditOutbox
     {
         context.OutboxMessages.Add(new Documents.OutboxMessageDocument
         {
-            Id = Guid.NewGuid().ToString("N"),
+            Id = Guid.NewGuid().ToString(),
             Payload = JsonSerializer.Serialize(auditOutbox),
             Status = OutboxMessageStatus.Pending,
             OccurredAtUtc = DateTime.UtcNow,
