@@ -6,7 +6,7 @@ public class ClaimAudit
 
     public required string ClaimId { get; set; }
 
-    public DateTime Created { get; set; }
+    public required DateTime Created { get; set; }
 
     public required string HttpRequestType { get; set; }
 }

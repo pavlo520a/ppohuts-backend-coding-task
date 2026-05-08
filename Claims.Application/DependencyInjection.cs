@@ -14,10 +14,10 @@ using Claims.Application.Services;
 using Claims.Application.UseCases.Claims;
 using Claims.Application.UseCases.Covers;
 using Claims.Application.UseCases.Formulas;
-using Claims.Application.Validation.Claims;
 using Claims.Domain.Models;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
+using System.Reflection;
 
 namespace Claims.Application;
 
@@ -25,7 +25,7 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
-        services.AddValidatorsFromAssemblyContaining<CreateClaimCommandValidator>();
+        services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 
         services
             .AddOptions<ValidationRulesOptions>()
