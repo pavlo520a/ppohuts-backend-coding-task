@@ -1,7 +1,6 @@
 using AutoFixture;
 using AutoFixture.AutoNSubstitute;
 using Claims.Application.Formulas;
-using Claims.Application.Options.Formulas;
 using Claims.Application.UnitTests.Factories;
 using Claims.Domain.Enums;
 using Claims.Domain.Models.Formulas;

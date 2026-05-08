@@ -4,6 +4,7 @@ using Claims.IntegrationTests.Infrastructure;
 using Claims.IntegrationTests.Infrastructure.Constants;
 using Claims.IntegrationTests.Infrastructure.Factories;
 using Claims.IntegrationTests.Infrastructure.Hosting;
+using Microsoft.Extensions.Configuration;
 using System.Net;
 using System.Net.Http.Json;
 
@@ -18,8 +19,8 @@ public sealed class CoversControllerTests : IntegrationTestBase
         var firstCoverId = Guid.NewGuid().ToString();
         var secondCoverId = Guid.NewGuid().ToString();
 
-        await Factory.DataStore.SeedCoverAsync(TestDocumentFactory.CreateCoverDocument(firstCoverId, premium: 1100m));
-        await Factory.DataStore.SeedCoverAsync(TestDocumentFactory.CreateCoverDocument(secondCoverId, premium: 1300m));
+        await DataStore.SeedCoverAsync(TestDocumentFactory.CreateCoverDocument(firstCoverId, premium: 1100m));
+        await DataStore.SeedCoverAsync(TestDocumentFactory.CreateCoverDocument(secondCoverId, premium: 1300m));
 
         // Act
         var response = await Client.GetAsync(TestConstants.Routes.Covers, TestContext.Current.CancellationToken);
@@ -40,7 +41,7 @@ public sealed class CoversControllerTests : IntegrationTestBase
         // Arrange
         var coverId = Guid.NewGuid().ToString();
 
-        await Factory.DataStore.SeedCoverAsync(TestDocumentFactory.CreateCoverDocument(coverId, premium: 2000m));
+        await DataStore.SeedCoverAsync(TestDocumentFactory.CreateCoverDocument(coverId, premium: 2000m));
 
         // Act
         var response = await Client.GetAsync($"{TestConstants.Routes.Covers}/{coverId}", TestContext.Current.CancellationToken);
@@ -90,7 +91,7 @@ public sealed class CoversControllerTests : IntegrationTestBase
         Assert.Equal(CoverType.Yacht, created.Type);
         Assert.True(created.Premium > 0m);
 
-        var outboxMessages = await Factory.DataStore.GetOutboxMessagesAsync();
+        var outboxMessages = await DataStore.GetOutboxMessagesAsync();
 
         Assert.Single(outboxMessages);
         Assert.Equal(OutboxMessageStatus.Pending, outboxMessages.Single().Status);
@@ -145,7 +146,7 @@ public sealed class CoversControllerTests : IntegrationTestBase
         var startDate = DateTime.UtcNow.Date.AddDays(1);
         var request = TestDataFactory.CreateValidCoverRequest(
             startDate: startDate,
-            endDate: startDate.AddYears(Factory.Validation.MaxCoverInsurancePeriodYears));
+            endDate: startDate.AddYears(Configuration.GetValue<int>("ValidationRules:Covers:MaxInsurancePeriodYears")));
 
         // Act
         var response = await Client.PostAsJsonAsync(
@@ -165,7 +166,7 @@ public sealed class CoversControllerTests : IntegrationTestBase
     {
         // Arrange
         var coverId = Guid.NewGuid().ToString();
-        await Factory.DataStore.SeedCoverAsync(TestDocumentFactory.CreateCoverDocument(coverId));
+        await DataStore.SeedCoverAsync(TestDocumentFactory.CreateCoverDocument(coverId));
 
         // Act
         var response = await Client.DeleteAsync($"{TestConstants.Routes.Covers}/{coverId}", TestContext.Current.CancellationToken);
@@ -173,11 +174,11 @@ public sealed class CoversControllerTests : IntegrationTestBase
         // Assert
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
 
-        var coverExists = await Factory.DataStore.CoverExistsAsync(coverId);
+        var coverExists = await DataStore.CoverExistsAsync(coverId);
 
         Assert.False(coverExists);
 
-        var outboxMessages = await Factory.DataStore.GetOutboxMessagesAsync();
+        var outboxMessages = await DataStore.GetOutboxMessagesAsync();
 
         Assert.Single(outboxMessages);
         Assert.Equal(OutboxMessageStatus.Pending, outboxMessages.Single().Status);

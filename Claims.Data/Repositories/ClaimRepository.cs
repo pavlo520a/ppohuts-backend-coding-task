@@ -18,8 +18,8 @@ public sealed class ClaimRepository(ClaimsMongoDbContext context) : IClaimReposi
         context.Claims.Remove(new ClaimDocument
         {
             Id = id,
-            CoverId = string.Empty,
-            Name = string.Empty
+            CoverId = null!,
+            Name = null!
         });
     }
 }
