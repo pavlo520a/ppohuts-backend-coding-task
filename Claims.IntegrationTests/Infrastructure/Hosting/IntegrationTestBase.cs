@@ -9,7 +9,7 @@ public abstract class IntegrationTestBase : IAsyncLifetime
     private AsyncServiceScope dataStoreScope;
 
     protected ClaimsWebApplicationFactory Factory { get; } = new();
-    protected ClaimsMongoTestStore DataStore { get; private set; } = null!;
+    protected ClaimsDataStore DataStore { get; private set; } = null!;
     protected IConfiguration Configuration { get; private set; } = null!;
 
     protected HttpClient Client { get; private set; } = null!;
@@ -18,7 +18,7 @@ public abstract class IntegrationTestBase : IAsyncLifetime
     {
         Client = Factory.CreateClient();
         dataStoreScope = Factory.Services.CreateAsyncScope();
-        DataStore = dataStoreScope.ServiceProvider.GetRequiredService<ClaimsMongoTestStore>();
+        DataStore = dataStoreScope.ServiceProvider.GetRequiredService<ClaimsDataStore>();
         Configuration = dataStoreScope.ServiceProvider.GetRequiredService<IConfiguration>();
 
         await DataStore.ResetAsync();
