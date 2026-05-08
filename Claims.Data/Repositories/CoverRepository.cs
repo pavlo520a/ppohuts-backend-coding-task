@@ -15,6 +15,13 @@ public sealed class CoverRepository(ClaimsMongoDbContext context) : ICoverReposi
 
     public void Delete(string id)
     {
-        context.Covers.Remove(new CoverDocument { Id = id });
+        context.Covers.Remove(new CoverDocument
+        {
+            Id = id,
+            StartDate = default,
+            EndDate = default,
+            Type = default,
+            Premium = default
+        });
     }
 }

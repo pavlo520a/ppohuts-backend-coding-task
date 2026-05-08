@@ -4,11 +4,11 @@ namespace Claims.Data.Documents;
 
 public class CoverDocument : BaseDocument
 {
-    public DateOnly StartDate { get; set; }
+    public required DateOnly StartDate { get; set; }
 
-    public DateOnly EndDate { get; set; }
+    public required DateOnly EndDate { get; set; }
 
-    public CoverType Type { get; set; }
+    public required CoverType Type { get; set; }
 
-    public decimal Premium { get; set; }
+    public required decimal Premium { get; set; }
 }
