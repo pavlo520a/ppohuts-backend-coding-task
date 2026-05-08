@@ -1,4 +1,4 @@
-using Claims.IntegrationTests.Infrastructure.Data;
+using Claims.IntegrationTests.Infrastructure.Store;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 

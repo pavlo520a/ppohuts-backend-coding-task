@@ -1,5 +1,5 @@
 using Claims.Application.Abstractions.Services;
-using Claims.IntegrationTests.Infrastructure.Data;
+using Claims.IntegrationTests.Infrastructure.Store;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
