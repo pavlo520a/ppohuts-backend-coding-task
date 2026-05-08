@@ -1,8 +1,8 @@
-using Claims.ApiModels.Claims;
+using Claims.Web.ApiModels.Claims;
 using Claims.Application.Commands.Claims;
 using Claims.Domain.Models;
 
-namespace Claims.Mapping;
+namespace Claims.Web.Mapping;
 
 public static class ClaimApiMapping
 {

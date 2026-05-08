@@ -1,11 +1,11 @@
-using Claims.ApiModels.Formulas;
+using Claims.Web.ApiModels.Formulas;
 using Claims.Application.Abstractions;
 using Claims.Application.Commands.Formulas;
-using Claims.Mapping;
+using Claims.Web.Mapping;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
-namespace Claims.Controllers;
+namespace Claims.Web.Controllers;
 
 /// <summary>
 /// HTTP API for insurance formulas.
