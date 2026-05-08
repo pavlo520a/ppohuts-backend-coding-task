@@ -35,7 +35,7 @@ public sealed class ClaimsWebApplicationFactory : WebApplicationFactory<Program>
     {
         builder.ConfigureServices(services =>
         {
-            services.AddScoped<ClaimsMongoTestStore>();
+            services.AddScoped<ClaimsDataStore>();
         });
 
         return base.CreateHost(builder);
