@@ -1,4 +1,4 @@
-using Claims.ApiModels.Formulas;
+using Claims.Web.ApiModels.Formulas;
 using Claims.Domain.Enums;
 using Claims.IntegrationTests.Infrastructure;
 using Claims.IntegrationTests.Infrastructure.Constants;

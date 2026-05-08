@@ -1,4 +1,4 @@
-namespace Claims.ApiModels.Formulas;
+namespace Claims.Web.ApiModels.Formulas;
 
 public sealed class ComputePremiumResponse
 {

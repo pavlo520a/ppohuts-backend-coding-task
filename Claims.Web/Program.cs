@@ -1,5 +1,5 @@
 using Claims.Application;
-using Claims.ExceptionHandlers;
+using Claims.Web.ExceptionHandlers;
 using Claims.Data;
 using System.Text.Json.Serialization;
 

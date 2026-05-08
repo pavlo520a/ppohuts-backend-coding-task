@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Claims\Claims.Web.csproj" />
+    <ProjectReference Include="..\Claims.Web\Claims.Web.csproj" />
   </ItemGroup>
 
   <ItemGroup>

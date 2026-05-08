@@ -1,7 +1,7 @@
-using Claims.ApiModels.Formulas;
+using Claims.Web.ApiModels.Formulas;
 using Claims.Application.Commands.Formulas;
 
-namespace Claims.Mapping;
+namespace Claims.Web.Mapping;
 
 public static class FormulaApiMapping
 {

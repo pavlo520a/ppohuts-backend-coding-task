@@ -1,7 +1,6 @@
 using System.Text.Json;
 using AutoFixture;
 using AutoFixture.AutoNSubstitute;
-using Claims.Auditing.AzureFunctionIsolated;
 using Claims.Data.Auditing.Abstractions.Repositories;
 using Claims.Domain.Models;
 using NSubstitute;

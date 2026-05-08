@@ -1,6 +1,6 @@
 using Claims.Domain.Enums;
 
-namespace Claims.ApiModels.Claims;
+namespace Claims.Web.ApiModels.Claims;
 
 public sealed class ClaimResponse
 {

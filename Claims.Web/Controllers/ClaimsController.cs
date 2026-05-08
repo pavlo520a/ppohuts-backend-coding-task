@@ -1,12 +1,12 @@
-using Claims.ApiModels.Claims;
+using Claims.Web.ApiModels.Claims;
 using Claims.Application.Abstractions;
 using Claims.Application.Commands.Claims;
-using Claims.Mapping;
+using Claims.Web.Mapping;
 using Claims.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
-namespace Claims.Controllers;
+namespace Claims.Web.Controllers;
 
 /// <summary>
 /// HTTP API for insurance claims.
