@@ -1,6 +1,6 @@
 using Claims.Domain.Enums;
 
-namespace Claims.ApiModels.Formulas;
+namespace Claims.Web.ApiModels.Formulas;
 
 public sealed class ComputePremiumRequest
 {

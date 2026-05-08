@@ -1,6 +1,6 @@
 using Claims.Domain.Enums;
 
-namespace Claims.ApiModels.Covers;
+namespace Claims.Web.ApiModels.Covers;
 
 public sealed class CreateCoverRequest
 {

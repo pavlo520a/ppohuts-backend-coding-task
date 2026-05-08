@@ -1,8 +1,8 @@
-using Claims.ApiModels.Covers;
+using Claims.Web.ApiModels.Covers;
 using Claims.Application.Commands.Covers;
 using Claims.Domain.Models;
 
-namespace Claims.Mapping;
+namespace Claims.Web.Mapping;
 
 public static class CoverApiMapping
 {

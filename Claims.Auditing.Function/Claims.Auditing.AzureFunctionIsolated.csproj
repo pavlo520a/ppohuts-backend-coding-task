@@ -16,8 +16,8 @@
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.6" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Claims.Domain\Claims.Domain.csproj" />
-    <ProjectReference Include="..\..\Claims.Data.Auditing\Claims.Data.Auditing.csproj" />
+    <ProjectReference Include="..\Claims.Domain\Claims.Domain.csproj" />
+    <ProjectReference Include="..\Claims.Data.Auditing\Claims.Data.Auditing.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">
