@@ -2,7 +2,7 @@ using Claims.Domain.Exceptions;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Claims.ExceptionHandlers;
+namespace Claims.Web.ExceptionHandlers;
 
 public sealed class NotFoundExceptionHandler(ILogger<NotFoundExceptionHandler> logger) : IExceptionHandler
 {

@@ -1,6 +1,6 @@
-using Claims.ApiModels.Claims;
-using Claims.ApiModels.Covers;
-using Claims.ApiModels.Formulas;
+using Claims.Web.ApiModels.Claims;
+using Claims.Web.ApiModels.Covers;
+using Claims.Web.ApiModels.Formulas;
 using Claims.Domain.Enums;
 
 namespace Claims.IntegrationTests.Infrastructure.Factories;

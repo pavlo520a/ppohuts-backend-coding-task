@@ -1,12 +1,12 @@
-using Claims.ApiModels.Covers;
+using Claims.Web.ApiModels.Covers;
 using Claims.Application.Abstractions;
 using Claims.Application.Commands.Covers;
 using Claims.Domain.Models;
-using Claims.Mapping;
+using Claims.Web.Mapping;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
-namespace Claims.Controllers;
+namespace Claims.Web.Controllers;
 
 /// <summary>
 /// HTTP API for covers.

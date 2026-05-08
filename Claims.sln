@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.2.32519.379
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Claims.Web", "Claims\Claims.Web.csproj", "{268F67FB-056D-4843-8823-19A5F7848271}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Claims.Web", "Claims.Web\Claims.Web.csproj", "{268F67FB-056D-4843-8823-19A5F7848271}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "4 - Tests", "4 - Tests", "{003F7774-8202-4837-8C40-72297F3876C1}"
 EndProject
@@ -37,9 +37,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3 - Adapters", "3 - Adapter
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Claims.Application.UnitTests", "Claims.Application.UnitTests\Claims.Application.UnitTests.csproj", "{5ACFEC9F-E510-4984-AD2F-00D5EFE37FB7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Claims.Auditing.AzureFunctionIsolated", "Apps\Claims.Auditing.Function\Claims.Auditing.AzureFunctionIsolated.csproj", "{9FD472E4-6438-4A78-A950-773C9B2B7E2E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Claims.Auditing.AzureFunctionIsolated", "Claims.Auditing.Function\Claims.Auditing.AzureFunctionIsolated.csproj", "{9FD472E4-6438-4A78-A950-773C9B2B7E2E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Claims.Auditing.AzureFunctionIsolated.UnitTests", "Apps\Claims.Auditing.Function.UnitTests\Claims.Auditing.AzureFunctionIsolated.UnitTests.csproj", "{2CC91CAE-F1E6-462C-A93A-6E12DFD9A39B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Claims.Auditing.AzureFunctionIsolated.UnitTests", "Claims.Auditing.Function.UnitTests\Claims.Auditing.AzureFunctionIsolated.UnitTests.csproj", "{2CC91CAE-F1E6-462C-A93A-6E12DFD9A39B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
