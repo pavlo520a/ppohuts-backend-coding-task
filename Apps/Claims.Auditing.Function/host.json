@@ -1,0 +1,15 @@
+{
+  "version": "2.0",
+  "extensions": {
+    "serviceBus": {
+      "prefetchCount": 10,
+      "maxConcurrentCalls": 4,
+      "autoCompleteMessages": false
+    }
+  },
+  "logging": {
+    "logLevel": {
+      "default": "Information"
+    }
+  }
+}
